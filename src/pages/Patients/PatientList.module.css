@@ -1,0 +1,163 @@
+.container {
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.registerButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #334155;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  display: inline-block;
+  transition: background-color 0.2s;
+}
+
+.registerButton:hover {
+  background-color: #1e293b;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  background-color: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.searchSection {
+  margin-bottom: 2rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #334155;
+  box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.1);
+}
+
+.patientGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.noData {
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+  grid-column: 1 / -1;
+}
+
+.patientCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.patientCard:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cardHeader {
+  padding: 1rem;
+  background-color: #334155;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patientName {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.gender {
+  font-size: 0.875rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.cardBody {
+  padding: 1rem;
+}
+
+.infoRow {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.cardActions {
+  padding: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  border-top: 1px solid #eee;
+}
+
+.viewButton {
+  flex: 1;
+  padding: 0.5rem;
+  background-color: #334155;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.viewButton:hover {
+  background-color: #1e293b;
+}
+
+.deleteButton {
+  padding: 0.5rem 1rem;
+  background-color: #991b1b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.deleteButton:hover {
+  background-color: #7f1d1d;
+}

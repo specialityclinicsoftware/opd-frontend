@@ -1,0 +1,174 @@
+.container {
+  padding: 0;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  background-color: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.statNumber {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.searchSection {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.searchBar {
+  display: flex;
+  gap: 1rem;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.searchButton {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: #334155;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+  background-color: #1e293b;
+}
+
+.actionsSection {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #334155;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  display: inline-block;
+  transition: background-color 0.2s;
+}
+
+.actionButton:hover {
+  background-color: #1e293b;
+}
+
+.visitsSection {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.noData {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #ddd;
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.tr {
+  border-bottom: 1px solid #eee;
+}
+
+.td {
+  padding: 0.75rem;
+}
+
+.viewLink {
+  color: #334155;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.viewLink:hover {
+  color: #1e293b;
+  text-decoration: underline;
+}

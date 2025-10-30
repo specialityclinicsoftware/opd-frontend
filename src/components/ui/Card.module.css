@@ -1,0 +1,47 @@
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #2c3e50;
+}
+
+.body {
+  padding: 1.5rem;
+}
+
+.footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+/* Variants */
+.elevated {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.flat {
+  box-shadow: none;
+  border: 1px solid #e0e0e0;
+}
+
+.noPadding .body {
+  padding: 0;
+}

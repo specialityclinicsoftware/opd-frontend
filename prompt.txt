@@ -1,0 +1,182 @@
+📋 Medical OPD Management System - Backend Overview
+
+  Application Purpose
+
+  A complete Outpatient Department Management System for healthcare providers to manage:
+  - Patient registration & demographics
+  - Medical visits & examinations
+  - Prescriptions & medication tracking
+  - Medical history & lab results
+
+  ---
+  🔗 API Endpoints Reference
+
+  Patient Management (/api/patients/)
+
+  POST   /register                    → Register new patient
+  GET    /                            → Get all patients
+  GET    /search?phoneNumber={phone}  → Search by phone
+  GET    /:id                         → Get patient details
+  PUT    /:id                         → Update patient
+  DELETE /:id                         → Delete patient
+
+  Visit Records (/api/visits/)
+
+  POST   /                            → Create new visit
+  GET    /patient/:patientId          → Get all visits for patient
+  GET    /patient/:patientId/latest   → Get latest visit
+  GET    /patient/:patientId/history  → Complete patient history
+  GET    /:id                         → Get specific visit
+  PUT    /:id                         → Update visit
+  DELETE /:id                         → Delete visit
+
+  Medications (/api/medications/)
+
+  POST   /                            → Add prescription
+  GET    /patient/:patientId          → All prescriptions for patient
+  GET    /patient/:patientId/recent   → Recent prescriptions (default 5)
+  GET    /visit/:visitId              → Medications for specific visit
+  GET    /:id                         → Get medication record
+  PUT    /:id                         → Update prescription
+  DELETE /:id                         → Delete prescription
+
+  ---
+  💾 Data Models
+
+  Patient
+
+  {
+    _id: string
+    name: string                    // Required
+    phoneNumber: string             // Required, Unique
+    age: number                     // 0-150
+    gender: 'Male' | 'Female' | 'Other'
+    address: string
+    registrationDate: Date
+  }
+
+  Visit
+
+  {
+    _id: string
+    patientId: string               // Required
+    visitDate: Date
+    consultingDoctor: string        // Required
+
+    vitals: {
+      pulseRate: number
+      bloodPressure: { systolic: number, diastolic: number }
+      spO2: number
+      temperature: number
+    }
+
+    chiefComplaints: string
+    pastHistory: string
+    familyHistory: string
+    maritalHistory: string
+
+    generalExamination: {
+      pallor: boolean
+      icterus: boolean
+      clubbing: boolean
+      cyanosis: boolean
+      lymphadenopathy: boolean
+    }
+
+    systemicExamination: {
+      cvs: string                   // Cardiovascular
+      rs: string                    // Respiratory
+      pa: string                    // Per Abdomen
+      cns: string                   // Central Nervous System
+    }
+
+    diagnosis: string
+    treatment: string
+    investigation: string
+    advice: string
+    reviewDate: Date
+
+    bloodInvestigations: [{
+      testName: string
+      value: string
+      unit: string
+      referenceRange: string
+      testDate: Date
+    }]
+  }
+
+  MedicationHistory
+
+  {
+    _id: string
+    patientId: string               // Required
+    visitId: string                 // Required
+    prescribedDate: Date
+    consultingDoctor: string        // Required
+    diagnosis: string
+
+    medications: [{                 // Min 1 required
+      medicineName: string
+      dosage: string                // e.g., "500mg"
+      frequency: string             // e.g., "TDS" (3x), "BD" (2x)
+      duration: string              // e.g., "7 days"
+      route: string                 // Oral/IV/Topical
+      instructions: string
+      timing: string
+    }]
+
+    notes: string
+  }
+
+  ---
+  🔄 Data Relationships
+
+  Patient (1) ──→ Many Visits
+           └──→ Many MedicationHistories
+
+  Visit (1) ──→ One MedicationHistory
+
+  ---
+  ⚙️ Backend Tech Stack
+
+  - Runtime: Node.js + TypeScript
+  - Framework: Express.js v5.1.0
+  - Database: MongoDB with Mongoose v8.19.2
+  - Logging: Winston
+  - Port: 3001 (default)
+  - Base URL: http://localhost:3001
+
+  ---
+  📝 Response Format
+
+  All API responses follow this structure:
+  {
+    success: boolean
+    message: string
+    data: T                         // patient | visit | medicationHistory
+  }
+
+  Error responses include:
+  {
+    success: false
+    message: string
+    error?: string                  // In development mode
+  }
+
+  ---
+  🚨 Important Notes
+
+  1. No Authentication currently - all endpoints are public
+  2. Phone numbers must be unique per patient
+  3. CORS is enabled - React app can connect directly
+  4. All dates use ISO 8601 format
+  5. MedicationHistory requires at least 1 medication in array
+
+  ---
+  🎯 Suggested React UI Pages
+
+  1. Dashboard - Overview stats, recent visits
+  2. Patient Management - List, search, register, edit
+  3. Visit Entry - Create/edit visit with vitals, exam, diagnosis
+  4. Prescription Manager - Add/view medications
+  5. Patient History - Complete timeline view
