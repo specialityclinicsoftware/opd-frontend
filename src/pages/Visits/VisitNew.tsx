@@ -204,39 +204,34 @@ const VisitNew = () => {
           )}
         </div>
 
-        {/* Vitals */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-            Vitals
-          </h2>
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Pulse (bpm)</label>
+        {/* Vitals - Compact */}
+        <div style={styles.compactSection}>
+          <h3 style={styles.compactSectionTitle}>Vitals</h3>
+          <div style={styles.inlineFormRow}>
+            <div style={styles.inlineFormGroup}>
+              <label style={styles.inlineLabel}>Pulse</label>
               <input
                 type="number"
                 name="vitals.pulseRate"
                 value={formData.vitals?.pulseRate || ''}
                 onChange={handleChange}
                 placeholder="72"
-                style={styles.input}
+                style={styles.smallInput}
               />
             </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>SpO2 (%)</label>
+            <div style={styles.inlineFormGroup}>
+              <label style={styles.inlineLabel}>SpO2</label>
               <input
                 type="number"
                 name="vitals.spO2"
                 value={formData.vitals?.spO2 || ''}
                 onChange={handleChange}
                 placeholder="98"
-                style={styles.input}
+                style={styles.smallInput}
               />
             </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Temp (°F)</label>
+            <div style={styles.inlineFormGroup}>
+              <label style={styles.inlineLabel}>Temp</label>
               <input
                 type="number"
                 step="0.1"
@@ -244,46 +239,37 @@ const VisitNew = () => {
                 value={formData.vitals?.temperature || ''}
                 onChange={handleChange}
                 placeholder="98.6"
-                style={styles.input}
+                style={styles.smallInput}
               />
             </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>BP Systolic</label>
-              <input
-                type="number"
-                name="vitals.bloodPressure.systolic"
-                value={formData.vitals?.bloodPressure?.systolic || ''}
-                onChange={handleChange}
-                placeholder="120"
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>BP Diastolic</label>
-              <input
-                type="number"
-                name="vitals.bloodPressure.diastolic"
-                value={formData.vitals?.bloodPressure?.diastolic || ''}
-                onChange={handleChange}
-                placeholder="80"
-                style={styles.input}
-              />
+            <div style={styles.inlineFormGroup}>
+              <label style={styles.inlineLabel}>BP (S/D)</label>
+              <div style={styles.bpGroup}>
+                <input
+                  type="number"
+                  name="vitals.bloodPressure.systolic"
+                  value={formData.vitals?.bloodPressure?.systolic || ''}
+                  onChange={handleChange}
+                  placeholder="120"
+                  style={styles.bpInput}
+                />
+                <span style={styles.bpSeparator}>/</span>
+                <input
+                  type="number"
+                  name="vitals.bloodPressure.diastolic"
+                  value={formData.vitals?.bloodPressure?.diastolic || ''}
+                  onChange={handleChange}
+                  placeholder="80"
+                  style={styles.bpInput}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* History */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
-            History
-          </h2>
+        {/* History - Compact */}
+        <div style={styles.compactSection}>
+          <h3 style={styles.compactSectionTitle}>History</h3>
           <div style={styles.formGroup}>
             <label style={styles.label}>Chief Complaints</label>
             <textarea
@@ -296,7 +282,7 @@ const VisitNew = () => {
           </div>
           <div style={styles.formRow}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Past History</label>
+              <label style={styles.label}>Past</label>
               <textarea
                 name="pastHistory"
                 value={formData.pastHistory}
@@ -306,7 +292,7 @@ const VisitNew = () => {
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Family History</label>
+              <label style={styles.label}>Family</label>
               <textarea
                 name="familyHistory"
                 value={formData.familyHistory}
@@ -316,7 +302,7 @@ const VisitNew = () => {
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Marital History</label>
+              <label style={styles.label}>Marital</label>
               <textarea
                 name="maritalHistory"
                 value={formData.maritalHistory}
@@ -328,18 +314,11 @@ const VisitNew = () => {
           </div>
         </div>
 
-        {/* General Examination */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            General Examination
-          </h2>
-          <div style={styles.checkboxGroup}>
-            <label style={styles.checkboxLabel}>
+        {/* General & Systemic Examination - Combined Compact */}
+        <div style={styles.compactSection}>
+          <h3 style={styles.compactSectionTitle}>General Examination</h3>
+          <div style={styles.compactCheckboxGroup}>
+            <label style={styles.compactCheckboxLabel}>
               <input
                 type="checkbox"
                 name="generalExamination.pallor"
@@ -348,7 +327,7 @@ const VisitNew = () => {
               />
               Pallor
             </label>
-            <label style={styles.checkboxLabel}>
+            <label style={styles.compactCheckboxLabel}>
               <input
                 type="checkbox"
                 name="generalExamination.icterus"
@@ -357,7 +336,7 @@ const VisitNew = () => {
               />
               Icterus
             </label>
-            <label style={styles.checkboxLabel}>
+            <label style={styles.compactCheckboxLabel}>
               <input
                 type="checkbox"
                 name="generalExamination.clubbing"
@@ -366,7 +345,7 @@ const VisitNew = () => {
               />
               Clubbing
             </label>
-            <label style={styles.checkboxLabel}>
+            <label style={styles.compactCheckboxLabel}>
               <input
                 type="checkbox"
                 name="generalExamination.cyanosis"
@@ -375,7 +354,7 @@ const VisitNew = () => {
               />
               Cyanosis
             </label>
-            <label style={styles.checkboxLabel}>
+            <label style={styles.compactCheckboxLabel}>
               <input
                 type="checkbox"
                 name="generalExamination.lymphadenopathy"
@@ -385,59 +364,51 @@ const VisitNew = () => {
               Lymphadenopathy
             </label>
           </div>
-        </div>
 
-        {/* Systemic Examination */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-            Systemic Examination
-          </h2>
+          <h3 style={{...styles.compactSectionTitle, marginTop: '1rem', marginBottom: '0.5rem'}}>Systemic Examination</h3>
           <div style={styles.formRow}>
             <div style={styles.formGroup}>
               <label style={styles.label}>CVS</label>
-              <textarea
+              <input
+                type="text"
                 name="systemicExamination.cvs"
                 value={formData.systemicExamination?.cvs || ''}
                 onChange={handleChange}
-                rows={1}
-                style={styles.textarea}
-                placeholder="Cardiovascular findings..."
+                style={styles.input}
+                placeholder="S1S2 N"
               />
             </div>
             <div style={styles.formGroup}>
               <label style={styles.label}>RS</label>
-              <textarea
+              <input
+                type="text"
                 name="systemicExamination.rs"
                 value={formData.systemicExamination?.rs || ''}
                 onChange={handleChange}
-                rows={1}
-                style={styles.textarea}
-                placeholder="Respiratory findings..."
+                style={styles.input}
+                placeholder="NVBS B/L"
               />
             </div>
             <div style={styles.formGroup}>
               <label style={styles.label}>PA</label>
-              <textarea
+              <input
+                type="text"
                 name="systemicExamination.pa"
                 value={formData.systemicExamination?.pa || ''}
                 onChange={handleChange}
-                rows={1}
-                style={styles.textarea}
-                placeholder="Abdominal findings..."
+                style={styles.input}
+                placeholder="Soft NT"
               />
             </div>
             <div style={styles.formGroup}>
               <label style={styles.label}>CNS</label>
-              <textarea
+              <input
+                type="text"
                 name="systemicExamination.cns"
                 value={formData.systemicExamination?.cns || ''}
                 onChange={handleChange}
-                rows={1}
-                style={styles.textarea}
-                placeholder="CNS findings..."
+                style={styles.input}
+                placeholder="NAD"
               />
             </div>
           </div>
@@ -512,82 +483,78 @@ const VisitNew = () => {
           </div>
         </div>
 
-        {/* Blood Investigations */}
-        <div style={styles.section}>
-          <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-              </svg>
-              Blood Investigations
-            </h2>
-            <button type="button" onClick={addBloodTest} style={styles.addButton}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        {/* Blood Investigations - Compact */}
+        <div style={styles.compactSection}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem'}}>
+            <h3 style={styles.compactSectionTitle}>Blood Investigations</h3>
+            <button type="button" onClick={addBloodTest} style={styles.addButtonSmall}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              Add Test
+              Add
             </button>
           </div>
           {formData.bloodInvestigations?.map((test, index) => (
-            <div key={index} style={styles.bloodTestCard}>
-              <div style={styles.bloodTestHeader}>
-                <span>Test {index + 1}</span>
+            <div key={index} style={styles.compactBloodTestCard}>
+              <div style={styles.compactBloodTestHeader}>
+                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#64748b'}}>#{index + 1}</span>
                 <button
                   type="button"
                   onClick={() => removeBloodTest(index)}
-                  style={styles.removeButton}
+                  style={styles.removeButtonSmall}
                 >
-                  Remove
+                  ×
                 </button>
               </div>
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Test Name</label>
+              <div style={{display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr 1fr', gap: '0.5rem', alignItems: 'flex-end'}}>
+                <div style={styles.inlineFormGroup}>
+                  <label style={styles.inlineLabel}>Test Name</label>
                   <input
                     type="text"
                     value={test.testName}
                     onChange={(e) => updateBloodTest(index, 'testName', e.target.value)}
-                    style={styles.input}
+                    style={styles.smallInput}
+                    placeholder="e.g., CBC"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Value</label>
+                <div style={styles.inlineFormGroup}>
+                  <label style={styles.inlineLabel}>Value</label>
                   <input
                     type="text"
                     value={test.value}
                     onChange={(e) => updateBloodTest(index, 'value', e.target.value)}
-                    style={styles.input}
+                    style={styles.smallInput}
+                    placeholder="10.5"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Unit</label>
+                <div style={styles.inlineFormGroup}>
+                  <label style={styles.inlineLabel}>Unit</label>
                   <input
                     type="text"
                     value={test.unit}
                     onChange={(e) => updateBloodTest(index, 'unit', e.target.value)}
-                    style={styles.input}
+                    style={styles.smallInput}
+                    placeholder="g/dL"
                   />
                 </div>
-              </div>
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Reference Range</label>
+                <div style={styles.inlineFormGroup}>
+                  <label style={styles.inlineLabel}>Ref Range</label>
                   <input
                     type="text"
                     value={test.referenceRange}
                     onChange={(e) => updateBloodTest(index, 'referenceRange', e.target.value)}
-                    style={styles.input}
+                    style={styles.smallInput}
+                    placeholder="12-16"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Test Date</label>
+                <div style={styles.inlineFormGroup}>
+                  <label style={styles.inlineLabel}>Date</label>
                   <input
                     type="date"
                     value={test.testDate instanceof Date ? test.testDate.toISOString().split('T')[0] : ''}
                     onChange={(e) => updateBloodTest(index, 'testDate', new Date(e.target.value))}
-                    style={styles.input}
+                    style={styles.smallInput}
                   />
                 </div>
               </div>
@@ -636,16 +603,16 @@ const styles = {
   container: {
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '1rem',
+    padding: '0.75rem',
     backgroundColor: '#f8f9fa',
     minHeight: '100vh',
   },
   compactHeader: {
     backgroundColor: 'white',
-    padding: '1rem 1.5rem',
+    padding: '0.875rem 1.25rem',
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    marginBottom: '1.5rem',
+    marginBottom: '0.75rem',
   },
   headerRow: {
     display: 'flex',
@@ -734,6 +701,14 @@ const styles = {
     marginBottom: '1rem',
     border: '1px solid #e2e8f0',
   },
+  compactSection: {
+    backgroundColor: 'white',
+    padding: '0.875rem 1rem',
+    borderRadius: '8px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+    marginBottom: '0.75rem',
+    border: '1px solid #e2e8f0',
+  },
   prominentSection: {
     backgroundColor: 'white',
     padding: '1.5rem',
@@ -761,6 +736,15 @@ const styles = {
     borderBottom: '1px solid #e2e8f0',
     letterSpacing: '-0.025em',
   },
+  compactSectionTitle: {
+    fontSize: '0.875rem',
+    margin: 0,
+    marginBottom: '0.625rem',
+    color: '#475569',
+    fontWeight: '600' as const,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.025em',
+  },
   prominentSectionTitle: {
     fontSize: '1.125rem',
     margin: 0,
@@ -783,12 +767,29 @@ const styles = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     gap: '1rem',
   },
+  inlineFormRow: {
+    display: 'flex',
+    gap: '0.75rem',
+    flexWrap: 'wrap' as const,
+    alignItems: 'flex-end',
+  },
+  inlineFormGroup: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.25rem',
+    minWidth: '100px',
+  },
   label: {
     display: 'block',
     marginBottom: '0.5rem',
     fontWeight: '500' as const,
     fontSize: '0.875rem',
     color: '#475569',
+  },
+  inlineLabel: {
+    fontSize: '0.75rem',
+    fontWeight: '500' as const,
+    color: '#64748b',
   },
   required: {
     color: '#dc2626',
@@ -804,6 +805,33 @@ const styles = {
     transition: 'all 0.2s ease',
     backgroundColor: '#ffffff',
     color: '#1e293b',
+  },
+  smallInput: {
+    padding: '0.5rem 0.625rem',
+    fontSize: '0.875rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '6px',
+    boxSizing: 'border-box' as const,
+    width: '100%',
+    minWidth: '80px',
+  },
+  bpGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+  },
+  bpInput: {
+    padding: '0.5rem 0.625rem',
+    fontSize: '0.875rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '6px',
+    boxSizing: 'border-box' as const,
+    width: '70px',
+  },
+  bpSeparator: {
+    color: '#94a3b8',
+    fontWeight: '600' as const,
+    fontSize: '1rem',
   },
   select: {
     width: '100%',
@@ -864,6 +892,21 @@ const styles = {
     transition: 'background-color 0.2s ease',
     fontWeight: '500' as const,
   },
+  compactCheckboxGroup: {
+    display: 'flex',
+    gap: '1rem',
+    flexWrap: 'wrap' as const,
+    marginBottom: '0.5rem',
+  },
+  compactCheckboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    fontSize: '0.8125rem',
+    color: '#475569',
+    cursor: 'pointer',
+    fontWeight: '500' as const,
+  },
   addButton: {
     padding: '0.625rem 1.25rem',
     backgroundColor: 'rgb(59, 130, 246)',
@@ -878,6 +921,21 @@ const styles = {
     alignItems: 'center',
     gap: '0.5rem',
     boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+  },
+  addButtonSmall: {
+    padding: '0.375rem 0.75rem',
+    backgroundColor: 'rgb(59, 130, 246)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '0.75rem',
+    fontWeight: '600' as const,
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    boxShadow: '0 1px 2px rgba(59, 130, 246, 0.2)',
   },
   bloodTestCard: {
     border: '1px solid #e2e8f0',
@@ -896,6 +954,19 @@ const styles = {
     color: '#1e293b',
     fontSize: '0.875rem',
   },
+  compactBloodTestCard: {
+    border: '1px solid #e2e8f0',
+    borderRadius: '6px',
+    padding: '0.625rem',
+    marginBottom: '0.5rem',
+    backgroundColor: '#f8fafc',
+  },
+  compactBloodTestHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '0.5rem',
+  },
   removeButton: {
     padding: '0.625rem 1rem',
     backgroundColor: '#ef4444',
@@ -908,14 +979,31 @@ const styles = {
     transition: 'all 0.2s ease',
     boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
   },
+  removeButtonSmall: {
+    padding: '0.25rem',
+    backgroundColor: 'transparent',
+    color: '#ef4444',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '1.25rem',
+    fontWeight: '700' as const,
+    lineHeight: '1',
+    transition: 'all 0.2s ease',
+    width: '24px',
+    height: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   submitSection: {
     position: 'sticky' as const,
     bottom: '0',
-    marginTop: '1.5rem',
+    marginTop: '0.75rem',
     marginBottom: '0',
-    padding: '1.25rem',
+    padding: '0.875rem 1rem',
     backgroundColor: 'white',
-    borderRadius: '12px',
+    borderRadius: '8px',
     boxShadow: '0 -4px 12px rgba(0,0,0,0.08)',
     border: '1px solid #e2e8f0',
   },

@@ -34,10 +34,12 @@ const Login = () => {
 
 
         // Redirect based on role
-        if (user.role === 'nurse') {
-          navigate('/nurse/queue');
-        } else if (user.role === 'doctor') {
-          navigate('/doctor/queue');
+        if (user.role === 'doctor') {
+          navigate('/visits/pending');
+        } else if (user.role === 'nurse') {
+          navigate('/visits/workflow/new/pre-consultation');
+        } else if (user.role === 'hospital_admin' || user.role === 'super_admin') {
+          navigate('/');
         } else {
           navigate('/');
         }
