@@ -6,6 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Loading from '../../components/ui/Loading';
 import Alert from '../../components/ui/Alert';
+import { Dialog } from '../../components/ui';
+import { useDialog } from '../../hooks/useDialog';
 import type { AxiosError } from '../../types/api';
 
 const UserList: React.FC = () => {
@@ -13,6 +15,7 @@ const UserList: React.FC = () => {
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
   const { hospitalId } = useParams<{ hospitalId?: string }>();
+  const { dialogState, hideDialog, confirm } = useDialog();
   const [error, setError] = useState<string | null>(null);
   const [filterRole, setFilterRole] = useState<string>('all');
 
@@ -53,9 +56,11 @@ const UserList: React.FC = () => {
 
   const handleToggleStatus = (user: User) => {
     if (user.isActive) {
-      if (window.confirm(`Are you sure you want to deactivate ${user.name}?`)) {
-        deactivateMutation.mutate(user._id);
-      }
+      confirm(
+        `Are you sure you want to deactivate ${user.name}?`,
+        () => deactivateMutation.mutate(user._id),
+        'Confirm Deactivation'
+      );
     } else {
       activateMutation.mutate(user._id);
     }
@@ -92,8 +97,20 @@ const UserList: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '24px' }}>
+    <>
+      <Dialog
+        isOpen={dialogState.isOpen}
+        onClose={hideDialog}
+        title={dialogState.title}
+        type={dialogState.type}
+        showCancel={dialogState.showCancel}
+        onConfirm={dialogState.onConfirm}
+      >
+        {dialogState.message}
+      </Dialog>
+
+      <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '24px' }}>
         {hospitalId && currentUser?.role === 'super_admin' && (
           <Button variant="secondary" onClick={() => navigate('/admin/hospitals')}>
             ← Back to Hospitals
@@ -300,6 +317,7 @@ const UserList: React.FC = () => {
         </table>
       </div>
     </div>
+    </>
   );
 };
 

@@ -1,9 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { Dialog } from '../ui';
+import { useDialog } from '../../hooks/useDialog';
 
 const Sidebar = () => {
   const location = useLocation();
   const { user, isDoctor, isNurse, logout } = useAuth();
+  const { dialogState, hideDialog, confirm } = useDialog();
 
   const isSuperAdmin = user?.role === 'super_admin';
   const isHospitalAdmin = user?.role === 'hospital_admin';
@@ -97,9 +100,9 @@ const Sidebar = () => {
   ];
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
+    confirm('Are you sure you want to logout?', () => {
       logout();
-    }
+    }, 'Confirm Logout');
   };
 
   const isActive = (path: string) => {
@@ -110,10 +113,22 @@ const Sidebar = () => {
   };
 
   return (
-    <aside style={styles.sidebar}>
-      <div style={styles.header}>
-        <div style={styles.logo}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <>
+      <Dialog
+        isOpen={dialogState.isOpen}
+        onClose={hideDialog}
+        title={dialogState.title}
+        type={dialogState.type}
+        showCancel={dialogState.showCancel}
+        onConfirm={dialogState.onConfirm}
+      >
+        {dialogState.message}
+      </Dialog>
+
+      <aside style={styles.sidebar}>
+        <div style={styles.header}>
+          <div style={styles.logo}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
           </svg>
         </div>
@@ -160,6 +175,7 @@ const Sidebar = () => {
         </div>
       </div>
     </aside>
+    </>
   );
 };
 
@@ -168,13 +184,13 @@ const styles = {
     width: '260px',
     height: '100vh',
     backgroundColor: '#1e293b',
-    color: '#e2e8f0',
+    color: '#ffffff',
     display: 'flex',
     flexDirection: 'column' as const,
     position: 'fixed' as const,
     left: 0,
     top: 0,
-    boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
     zIndex: 1000,
   },
   header: {
@@ -185,13 +201,13 @@ const styles = {
     gap: '0.75rem',
   },
   logo: {
-    color: '#3b82f6',
+    color: '#60a5fa',
   },
   brand: {
     fontSize: '1.25rem',
     fontWeight: 'bold',
     margin: 0,
-    color: '#fff',
+    color: '#ffffff',
   },
   nav: {
     flex: 1,
@@ -206,7 +222,7 @@ const styles = {
     alignItems: 'center',
     gap: '0.75rem',
     padding: '0.75rem 1.5rem',
-    color: '#cbd5e1',
+    color: '#94a3b8',
     textDecoration: 'none',
     transition: 'all 0.2s ease',
     borderLeft: '3px solid transparent',
@@ -248,7 +264,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#fff',
+    color: '#ffffff',
   },
   userInfo: {
     flex: 1,
@@ -256,7 +272,7 @@ const styles = {
   userName: {
     fontSize: '0.9rem',
     fontWeight: '600',
-    color: '#fff',
+    color: '#ffffff',
   },
   userRole: {
     fontSize: '0.75rem',

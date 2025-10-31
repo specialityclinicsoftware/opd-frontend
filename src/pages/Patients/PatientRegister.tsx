@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { patientService } from '../../services';
 import type { PatientFormData } from '../../types';
 import type { AxiosError } from '../../types/api';
+import { Dialog } from '../../components/ui';
+import { useDialog } from '../../hooks/useDialog';
 
 const PatientRegister = () => {
   const navigate = useNavigate();
+  const { dialogState, hideDialog, showSuccess } = useDialog();
   const [formData, setFormData] = useState<PatientFormData>({
     name: '',
     phoneNumber: '',
@@ -51,8 +54,8 @@ const PatientRegister = () => {
     try {
       setLoading(true);
       const response = await patientService.register(formData);
-      alert('Patient registered successfully!');
-      navigate(`/patients/${response.data._id}`);
+      showSuccess('Patient registered successfully!');
+      setTimeout(() => navigate(`/patients/${response.data._id}`), 1500);
     } catch (err: unknown) {
       const error = err as AxiosError;
       setError(error.response?.data?.message || 'Failed to register patient');
@@ -63,8 +66,20 @@ const PatientRegister = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Register New Patient</h1>
+    <>
+      <Dialog
+        isOpen={dialogState.isOpen}
+        onClose={hideDialog}
+        title={dialogState.title}
+        type={dialogState.type}
+        showCancel={dialogState.showCancel}
+        onConfirm={dialogState.onConfirm}
+      >
+        {dialogState.message}
+      </Dialog>
+
+      <div style={styles.container}>
+        <h1 style={styles.title}>Register New Patient</h1>
 
       <div style={styles.formCard}>
         <form onSubmit={handleSubmit}>
@@ -168,6 +183,7 @@ const PatientRegister = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 
