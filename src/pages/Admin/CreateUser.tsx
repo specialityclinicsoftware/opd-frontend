@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Alert from '../../components/ui/Alert';
+import type { AxiosError } from '../../types/api';
 
 const CreateUser: React.FC = () => {
   const navigate = useNavigate();
@@ -36,8 +37,9 @@ const CreateUser: React.FC = () => {
         navigate(hospitalId ? `/admin/hospitals/${hospitalId}/users` : '/admin/users');
       }, 2000);
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || 'Failed to create user');
+    onError: (err: unknown) => {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to create user');
       setSuccess(null);
     },
   });

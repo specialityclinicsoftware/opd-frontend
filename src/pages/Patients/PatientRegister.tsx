@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { patientService } from '../../services';
 import type { PatientFormData } from '../../types';
+import type { AxiosError } from '../../types/api';
 
 const PatientRegister = () => {
   const navigate = useNavigate();
@@ -52,8 +53,9 @@ const PatientRegister = () => {
       const response = await patientService.register(formData);
       alert('Patient registered successfully!');
       navigate(`/patients/${response.data._id}`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to register patient');
+    } catch (err: unknown) {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to register patient');
       console.error('Registration error:', err);
     } finally {
       setLoading(false);

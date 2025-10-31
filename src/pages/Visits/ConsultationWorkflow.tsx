@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { visitService } from '../../services';
 import type { VisitFormData, Visit, Patient } from '../../types';
+import type { AxiosError } from '../../types/api';
 import { useAuth } from '../../context/AuthContext';
 import ConsultationForm from '../../components/visits/ConsultationForm';
 
@@ -97,8 +98,9 @@ const ConsultationWorkflow = () => {
 
       alert('Consultation completed successfully!');
       navigate('/visits/pending');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to complete consultation');
+    } catch (err: unknown) {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to complete consultation');
       console.error('Save error:', err);
     } finally {
       setSaving(false);

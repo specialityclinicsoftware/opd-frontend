@@ -7,6 +7,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Alert from '../../components/ui/Alert';
 import Loading from '../../components/ui/Loading';
+import type { AxiosError } from '../../types/api';
 
 const EditUser: React.FC = () => {
   const navigate = useNavigate();
@@ -57,8 +58,9 @@ const EditUser: React.FC = () => {
         navigate(hospitalId ? `/admin/hospitals/${hospitalId}/users` : '/admin/users');
       }, 2000);
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || 'Failed to update user');
+    onError: (err: unknown) => {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to update user');
       setSuccess(null);
     },
   });

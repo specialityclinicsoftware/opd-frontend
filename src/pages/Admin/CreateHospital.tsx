@@ -5,6 +5,7 @@ import hospitalService, { type ICreateHospital } from '../../services/hospitalSe
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Alert from '../../components/ui/Alert';
+import type { AxiosError } from '../../types/api';
 
 const CreateHospital: React.FC = () => {
   const navigate = useNavigate();
@@ -35,8 +36,9 @@ const CreateHospital: React.FC = () => {
         navigate('/admin/hospitals');
       }, 2000);
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || 'Failed to create hospital');
+    onError: (err: unknown) => {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to create hospital');
       setSuccess(null);
     },
   });

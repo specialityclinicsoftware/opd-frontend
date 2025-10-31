@@ -14,7 +14,6 @@ import PatientRegister from './pages/Patients/PatientRegister';
 
 // Visits - Classic
 import VisitNew from './pages/Visits/VisitNew';
-import VisitNewStaged from './pages/Visits/VisitNewStaged';
 import PendingVisits from './pages/Visits/PendingVisits';
 import VisitEdit from './pages/Visits/VisitEdit';
 
@@ -128,16 +127,6 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <VisitNew />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/visits/new-staged"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <VisitNewStaged />
                 </Layout>
               </ProtectedRoute>
             }

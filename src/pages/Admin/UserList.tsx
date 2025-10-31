@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Loading from '../../components/ui/Loading';
 import Alert from '../../components/ui/Alert';
+import type { AxiosError } from '../../types/api';
 
 const UserList: React.FC = () => {
   const navigate = useNavigate();
@@ -32,8 +33,9 @@ const UserList: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['users', targetHospitalId] });
       setError(null);
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || 'Failed to activate user');
+    onError: (err: unknown) => {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to activate user');
     },
   });
 
@@ -43,8 +45,9 @@ const UserList: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['users', targetHospitalId] });
       setError(null);
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || 'Failed to deactivate user');
+    onError: (err: unknown) => {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to deactivate user');
     },
   });
 

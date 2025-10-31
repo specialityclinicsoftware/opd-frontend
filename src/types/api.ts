@@ -4,8 +4,19 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-export interface ApiError {
+export interface ApiErrorResponse {
   success: false;
   message: string;
   error?: string;
+}
+
+export interface AxiosError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+    };
+    status?: number;
+  };
+  message?: string;
 }

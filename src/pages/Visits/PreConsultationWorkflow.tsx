@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { visitService, patientService } from '../../services';
 import type { Patient, VisitFormData } from '../../types';
+import type { AxiosError } from '../../types/api';
 import { useAuth } from '../../context/AuthContext';
 import PreConsultationForm from '../../components/visits/PreConsultationForm';
 
@@ -137,8 +138,9 @@ const PreConsultationWorkflow = () => {
         alert('Pre-consultation updated successfully!');
         navigate('/visits/pending');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save pre-consultation data');
+    } catch (err: unknown) {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to save pre-consultation data');
       console.error('Save error:', err);
     } finally {
       setLoading(false);

@@ -5,6 +5,7 @@ import hospitalService, { type Hospital } from '../../services/hospitalService';
 import Button from '../../components/ui/Button';
 import Loading from '../../components/ui/Loading';
 import Alert from '../../components/ui/Alert';
+import type { AxiosError } from '../../types/api';
 
 const HospitalList: React.FC = () => {
   const navigate = useNavigate();
@@ -22,8 +23,9 @@ const HospitalList: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['hospitals'] });
       setError(null);
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || 'Failed to activate hospital');
+    onError: (err: unknown) => {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to activate hospital');
     },
   });
 
@@ -33,8 +35,9 @@ const HospitalList: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['hospitals'] });
       setError(null);
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || 'Failed to deactivate hospital');
+    onError: (err: unknown) => {
+      const error = err as AxiosError;
+      setError(error.response?.data?.message || 'Failed to deactivate hospital');
     },
   });
 
