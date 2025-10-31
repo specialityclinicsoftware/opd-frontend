@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'https://opd-backend-xvid.onrender.com';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -11,7 +11,7 @@ export const apiClient = axios.create({
 
 // Request interceptor for JWT token and logging
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
 
     // Add JWT token to requests
@@ -22,7 +22,7 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => {
+  error => {
     console.error('❌ Request Error:', error);
     return Promise.reject(error);
   }
@@ -30,11 +30,14 @@ apiClient.interceptors.request.use(
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => {
-    console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+  response => {
+    console.log(
+      `✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`,
+      response.data
+    );
     return response;
   },
-  (error) => {
+  error => {
     console.error('❌ API Error:', error.response?.data || error.message);
     console.error('Error details:', {
       url: error.config?.url,
