@@ -18,11 +18,9 @@ import VisitNewStaged from './pages/Visits/VisitNewStaged';
 import PendingVisits from './pages/Visits/PendingVisits';
 import VisitEdit from './pages/Visits/VisitEdit';
 
-// Two-Stage Workflow
-import NurseQueue from './pages/Visits/NurseQueue';
-import DoctorQueue from './pages/Visits/DoctorQueue';
-import PreConsultation from './pages/Visits/PreConsultation';
-import Consultation from './pages/Visits/Consultation';
+// Two-Stage Workflow (New API-based workflow)
+import PreConsultationWorkflow from './pages/Visits/PreConsultationWorkflow';
+import ConsultationWorkflow from './pages/Visits/ConsultationWorkflow';
 
 // Other
 import PrescriptionNew from './pages/Prescriptions/PrescriptionNew';
@@ -89,45 +87,35 @@ function App() {
             }
           />
 
-          {/* Nurse Workflow */}
+          {/* New Workflow - Pre-Consultation (Both Nurse and Doctor can access) */}
           <Route
-            path="/nurse/queue"
+            path="/visits/workflow/new/pre-consultation"
             element={
-              <ProtectedRoute allowedRoles={['nurse']}>
+              <ProtectedRoute>
                 <Layout>
-                  <NurseQueue />
+                  <PreConsultationWorkflow />
                 </Layout>
               </ProtectedRoute>
             }
           />
           <Route
-            path="/nurse/pre-consultation/:visitId"
+            path="/visits/workflow/:id/pre-consultation"
             element={
-              <ProtectedRoute allowedRoles={['nurse']}>
+              <ProtectedRoute>
                 <Layout>
-                  <PreConsultation />
+                  <PreConsultationWorkflow />
                 </Layout>
               </ProtectedRoute>
             }
           />
 
-          {/* Doctor Workflow */}
+          {/* New Workflow - Consultation (Doctor only) */}
           <Route
-            path="/doctor/queue"
+            path="/visits/workflow/:id/consultation"
             element={
               <ProtectedRoute allowedRoles={['doctor']}>
                 <Layout>
-                  <DoctorQueue />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/doctor/consultation/:visitId"
-            element={
-              <ProtectedRoute allowedRoles={['doctor']}>
-                <Layout>
-                  <Consultation />
+                  <ConsultationWorkflow />
                 </Layout>
               </ProtectedRoute>
             }
@@ -157,7 +145,7 @@ function App() {
           <Route
             path="/visits/pending"
             element={
-              <ProtectedRoute allowedRoles={['doctor']}>
+              <ProtectedRoute>
                 <Layout>
                   <PendingVisits />
                 </Layout>

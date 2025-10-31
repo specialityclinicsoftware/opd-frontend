@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { medicationService, patientService, visitService } from '../../services';
-import { Patient, Visit, Medication, MedicationFormData } from '../../types';
+import type { Patient, Visit, Medication, MedicationFormData } from '../../types';
 
 const PrescriptionNew = () => {
   const navigate = useNavigate();
@@ -29,6 +29,12 @@ const PrescriptionNew = () => {
         route: 'Oral',
         instructions: '',
         timing: '',
+        morning: false,
+        afternoon: false,
+        evening: false,
+        dinner: false,
+        beforeMeal: false,
+        afterMeal: false,
       },
     ],
     notes: '',
@@ -100,6 +106,12 @@ const PrescriptionNew = () => {
           route: 'Oral',
           instructions: '',
           timing: '',
+          morning: false,
+          afternoon: false,
+          evening: false,
+          dinner: false,
+          beforeMeal: false,
+          afterMeal: false,
         },
       ],
     });
@@ -118,6 +130,12 @@ const PrescriptionNew = () => {
   const updateMedication = (index: number, field: keyof Medication, value: string) => {
     const meds = [...formData.medications];
     meds[index] = { ...meds[index], [field]: value };
+    setFormData({ ...formData, medications: meds });
+  };
+
+  const updateMedicationCheckbox = (index: number, field: keyof Medication, checked: boolean) => {
+    const meds = [...formData.medications];
+    meds[index] = { ...meds[index], [field]: checked };
     setFormData({ ...formData, medications: meds });
   };
 
@@ -147,8 +165,9 @@ const PrescriptionNew = () => {
       await medicationService.create(formData);
       alert('Prescription created successfully!');
       navigate(`/patients/${formData.patientId}`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create prescription');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to create prescription');
       console.error('Create prescription error:', err);
     } finally {
       setLoading(false);
@@ -157,216 +176,274 @@ const PrescriptionNew = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>New Prescription</h1>
-
       <form onSubmit={handleSubmit}>
         {error && <div style={styles.error}>{error}</div>}
 
-        {/* Patient & Visit Selection */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>Patient & Visit Information</h2>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>
-              Select Patient <span style={styles.required}>*</span>
-            </label>
-            <select
-              value={formData.patientId}
-              onChange={handlePatientChange}
-              style={styles.select}
-              required
-            >
-              <option value="">-- Select Patient --</option>
-              {patients.map(patient => (
-                <option key={patient._id} value={patient._id}>
-                  {patient.name} - {patient.phoneNumber}
-                </option>
-              ))}
-            </select>
+        {/* Compact Header - Patient & Prescription Info */}
+        <div style={styles.compactHeader}>
+          <div style={styles.headerRow}>
+            <h1 style={styles.pageTitle}>New Prescription</h1>
+            <div style={styles.headerRight}>
+              {/* Patient Selector */}
+              <div style={styles.compactField}>
+                <label style={styles.compactLabel}>Patient *</label>
+                <select
+                  value={formData.patientId}
+                  onChange={handlePatientChange}
+                  style={styles.compactSelect}
+                  required
+                >
+                  <option value="">Select Patient</option>
+                  {patients.map(patient => (
+                    <option key={patient._id} value={patient._id}>
+                      {patient.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Visit Selector */}
+              <div style={styles.compactField}>
+                <label style={styles.compactLabel}>Visit *</label>
+                <select
+                  name="visitId"
+                  value={formData.visitId}
+                  onChange={handleChange}
+                  style={styles.compactSelect}
+                  required
+                  disabled={!formData.patientId}
+                >
+                  <option value="">Select Visit</option>
+                  {visits.map(visit => (
+                    <option key={visit._id} value={visit._id}>
+                      {new Date(visit.visitDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Doctor Input */}
+              <div style={styles.compactField}>
+                <label style={styles.compactLabel}>Doctor *</label>
+                <input
+                  type="text"
+                  name="consultingDoctor"
+                  value={formData.consultingDoctor}
+                  onChange={handleChange}
+                  placeholder="Dr. Name"
+                  style={styles.compactInput}
+                  required
+                />
+              </div>
+
+              {/* Date Input */}
+              <div style={styles.compactField}>
+                <label style={styles.compactLabel}>Date</label>
+                <input
+                  type="date"
+                  name="prescribedDate"
+                  value={formData.prescribedDate instanceof Date ? formData.prescribedDate.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFormData({ ...formData, prescribedDate: new Date(e.target.value) })}
+                  style={styles.compactInput}
+                />
+              </div>
+            </div>
           </div>
-          {selectedPatient && (
-            <div style={styles.patientInfo}>
-              <strong>Age:</strong> {selectedPatient.age || 'N/A'} |
-              <strong> Gender:</strong> {selectedPatient.gender}
+
+          {/* Patient & Diagnosis Info Row */}
+          {(selectedPatient || formData.diagnosis) && (
+            <div style={styles.infoRow}>
+              {selectedPatient && (
+                <div style={styles.patientBadge}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <span>{selectedPatient.name}</span>
+                  <span style={styles.dot}>•</span>
+                  <span>{selectedPatient.age}y</span>
+                  <span style={styles.dot}>•</span>
+                  <span>{selectedPatient.gender}</span>
+                </div>
+              )}
+              {formData.diagnosis && (
+                <div style={styles.diagnosisBadge}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                  <span>{formData.diagnosis}</span>
+                </div>
+              )}
+              {!formData.diagnosis && (
+                <div style={styles.compactFieldInline}>
+                  <input
+                    type="text"
+                    name="diagnosis"
+                    value={formData.diagnosis}
+                    onChange={handleChange}
+                    placeholder="Enter diagnosis (optional)"
+                    style={styles.inlineDiagnosisInput}
+                  />
+                </div>
+              )}
             </div>
           )}
-          <div style={styles.formGroup}>
-            <label style={styles.label}>
-              Select Visit <span style={styles.required}>*</span>
-            </label>
-            <select
-              name="visitId"
-              value={formData.visitId}
-              onChange={handleChange}
-              style={styles.select}
-              required
-              disabled={!formData.patientId}
-            >
-              <option value="">-- Select Visit --</option>
-              {visits.map(visit => (
-                <option key={visit._id} value={visit._id}>
-                  {new Date(visit.visitDate).toLocaleDateString()} - Dr. {visit.consultingDoctor}
-                  {visit.diagnosis && ` - ${visit.diagnosis}`}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
-        {/* Prescription Details */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>Prescription Details</h2>
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Prescribed Date</label>
-              <input
-                type="date"
-                name="prescribedDate"
-                value={formData.prescribedDate instanceof Date ? formData.prescribedDate.toISOString().split('T')[0] : ''}
-                onChange={(e) => setFormData({ ...formData, prescribedDate: new Date(e.target.value) })}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>
-                Consulting Doctor <span style={styles.required}>*</span>
-              </label>
-              <input
-                type="text"
-                name="consultingDoctor"
-                value={formData.consultingDoctor}
-                onChange={handleChange}
-                placeholder="Doctor name"
-                style={styles.input}
-                required
-              />
-            </div>
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Diagnosis</label>
-            <textarea
-              name="diagnosis"
-              value={formData.diagnosis}
-              onChange={handleChange}
-              placeholder="Enter diagnosis"
-              rows={2}
-              style={styles.textarea}
-            />
-          </div>
-        </div>
-
-        {/* Medications */}
-        <div style={styles.section}>
+        {/* Medications - Prominent Section */}
+        <div style={styles.medicationsSection}>
           <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>
+            <h2 style={styles.medicationsTitle}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M9 3v18M15 3v18M3 9h18M3 15h18" />
+              </svg>
               Medications <span style={styles.required}>*</span>
             </h2>
             <button type="button" onClick={addMedication} style={styles.addButton}>
               + Add Medication
             </button>
           </div>
-          {formData.medications.map((med, index) => (
-            <div key={index} style={styles.medicationCard}>
-              <div style={styles.medicationHeader}>
-                <span style={styles.medicationNumber}>Medication {index + 1}</span>
-                {formData.medications.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeMedication(index)}
-                    style={styles.removeButton}
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>
-                    Medicine Name <span style={styles.required}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={med.medicineName}
-                    onChange={(e) => updateMedication(index, 'medicineName', e.target.value)}
-                    placeholder="e.g., Paracetamol"
-                    style={styles.input}
-                    required
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Dosage</label>
-                  <input
-                    type="text"
-                    value={med.dosage}
-                    onChange={(e) => updateMedication(index, 'dosage', e.target.value)}
-                    placeholder="e.g., 500mg"
-                    style={styles.input}
-                  />
-                </div>
-              </div>
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Frequency</label>
-                  <select
-                    value={med.frequency}
-                    onChange={(e) => updateMedication(index, 'frequency', e.target.value)}
-                    style={styles.select}
-                  >
-                    <option value="OD">OD (Once daily)</option>
-                    <option value="BD">BD (Twice daily)</option>
-                    <option value="TDS">TDS (Three times daily)</option>
-                    <option value="QID">QID (Four times daily)</option>
-                    <option value="PRN">PRN (As needed)</option>
-                  </select>
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Duration</label>
-                  <input
-                    type="text"
-                    value={med.duration}
-                    onChange={(e) => updateMedication(index, 'duration', e.target.value)}
-                    placeholder="e.g., 7 days"
-                    style={styles.input}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Route</label>
-                  <select
-                    value={med.route}
-                    onChange={(e) => updateMedication(index, 'route', e.target.value)}
-                    style={styles.select}
-                  >
-                    <option value="Oral">Oral</option>
-                    <option value="IV">IV (Intravenous)</option>
-                    <option value="IM">IM (Intramuscular)</option>
-                    <option value="Topical">Topical</option>
-                    <option value="Inhalation">Inhalation</option>
-                  </select>
-                </div>
-              </div>
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Timing</label>
-                  <input
-                    type="text"
-                    value={med.timing || ''}
-                    onChange={(e) => updateMedication(index, 'timing', e.target.value)}
-                    placeholder="e.g., Before meals"
-                    style={styles.input}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Instructions</label>
-                  <input
-                    type="text"
-                    value={med.instructions || ''}
-                    onChange={(e) => updateMedication(index, 'instructions', e.target.value)}
-                    placeholder="Special instructions"
-                    style={styles.input}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
+
+          <div style={styles.tableContainer}>
+            <table style={styles.table}>
+              <thead>
+                <tr style={styles.tableHeaderRow}>
+                  <th style={{...styles.tableHeader, width: '50px'}}>  #</th>
+                  <th style={{...styles.tableHeader, minWidth: '280px'}}>Medicine Name *</th>
+                  <th style={{...styles.tableHeader, width: '150px'}}>Dosage</th>
+                  <th style={{...styles.tableHeader, width: '120px'}}>Days</th>
+                  <th style={{...styles.tableHeader, minWidth: '180px'}}>
+                    Timing
+                    <div style={styles.timingSubHeader}>
+                      <span>M</span>
+                      <span>A</span>
+                      <span>E</span>
+                      <span>N</span>
+                    </div>
+                  </th>
+                  <th style={{...styles.tableHeader, minWidth: '160px'}}>
+                    Meal
+                    <div style={styles.timingSubHeader}>
+                      <span>Before</span>
+                      <span>After</span>
+                    </div>
+                  </th>
+                  <th style={{...styles.tableHeader, width: '70px'}}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {formData.medications.map((med, index) => (
+                  <tr key={index} style={styles.tableRow}>
+                    <td style={styles.tableCell}>{index + 1}</td>
+                    <td style={styles.tableCell}>
+                      <input
+                        type="text"
+                        value={med.medicineName}
+                        onChange={(e) => updateMedication(index, 'medicineName', e.target.value)}
+                        placeholder="Medicine name"
+                        style={styles.tableInput}
+                        required
+                      />
+                    </td>
+                    <td style={styles.tableCell}>
+                      <input
+                        type="text"
+                        value={med.dosage}
+                        onChange={(e) => updateMedication(index, 'dosage', e.target.value)}
+                        placeholder="500mg"
+                        style={styles.tableInput}
+                      />
+                    </td>
+                    <td style={styles.tableCell}>
+                      <input
+                        type="number"
+                        value={med.duration}
+                        onChange={(e) => updateMedication(index, 'duration', e.target.value)}
+                        placeholder="7"
+                        style={styles.tableInput}
+                      />
+                    </td>
+                    <td style={styles.tableCell}>
+                      <div style={styles.checkboxGroup}>
+                        <label style={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={med.morning || false}
+                            onChange={(e) => updateMedicationCheckbox(index, 'morning', e.target.checked)}
+                            style={styles.checkbox}
+                          />
+                          <span style={styles.checkboxText}>M</span>
+                        </label>
+                        <label style={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={med.afternoon || false}
+                            onChange={(e) => updateMedicationCheckbox(index, 'afternoon', e.target.checked)}
+                            style={styles.checkbox}
+                          />
+                          <span style={styles.checkboxText}>A</span>
+                        </label>
+                        <label style={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={med.evening || false}
+                            onChange={(e) => updateMedicationCheckbox(index, 'evening', e.target.checked)}
+                            style={styles.checkbox}
+                          />
+                          <span style={styles.checkboxText}>E</span>
+                        </label>
+                        <label style={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={med.dinner || false}
+                            onChange={(e) => updateMedicationCheckbox(index, 'dinner', e.target.checked)}
+                            style={styles.checkbox}
+                          />
+                          <span style={styles.checkboxText}>N</span>
+                        </label>
+                      </div>
+                    </td>
+                    <td style={styles.tableCell}>
+                      <div style={styles.checkboxGroup}>
+                        <label style={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={med.beforeMeal || false}
+                            onChange={(e) => updateMedicationCheckbox(index, 'beforeMeal', e.target.checked)}
+                            style={styles.checkbox}
+                          />
+                          <span style={styles.checkboxText}>Before</span>
+                        </label>
+                        <label style={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={med.afterMeal || false}
+                            onChange={(e) => updateMedicationCheckbox(index, 'afterMeal', e.target.checked)}
+                            style={styles.checkbox}
+                          />
+                          <span style={styles.checkboxText}>After</span>
+                        </label>
+                      </div>
+                    </td>
+                    <td style={styles.tableCell}>
+                      {formData.medications.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeMedication(index)}
+                          style={styles.removeButtonSmall}
+                          title="Remove"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Notes */}
@@ -411,38 +488,162 @@ const PrescriptionNew = () => {
 
 const styles = {
   container: {
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
+    padding: '1rem',
+    backgroundColor: '#f8f9fa',
+    minHeight: '100vh',
   },
-  title: {
-    fontSize: '2rem',
-    marginBottom: '2rem',
-    color: '#2c3e50',
+  compactHeader: {
+    backgroundColor: 'white',
+    padding: '1rem 1.25rem',
+    borderRadius: '10px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+    border: '1px solid #e2e8f0',
+    marginBottom: '1rem',
+  },
+  headerRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '0.75rem',
+  },
+  pageTitle: {
+    fontSize: '1.25rem',
+    margin: 0,
+    color: '#1e293b',
+    fontWeight: '600' as const,
+    letterSpacing: '-0.025em',
+  },
+  headerRight: {
+    display: 'flex',
+    gap: '0.75rem',
+    alignItems: 'flex-end',
+    flexWrap: 'wrap' as const,
+  },
+  compactField: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.25rem',
+  },
+  compactLabel: {
+    fontSize: '0.75rem',
+    fontWeight: '600' as const,
+    color: '#64748b',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.025em',
+  },
+  compactSelect: {
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '6px',
+    backgroundColor: '#ffffff',
+    cursor: 'pointer',
+    minWidth: '150px',
+  },
+  compactInput: {
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '6px',
+    backgroundColor: '#ffffff',
+    minWidth: '150px',
+  },
+  infoRow: {
+    display: 'flex',
+    gap: '1rem',
+    alignItems: 'center',
+    flexWrap: 'wrap' as const,
+  },
+  patientBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#f8fafc',
+    borderRadius: '8px',
+    border: '1px solid #e2e8f0',
+    fontSize: '0.875rem',
+    color: '#1e293b',
+    fontWeight: '500' as const,
+  },
+  diagnosisBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#fef3c7',
+    borderRadius: '8px',
+    border: '1px solid #fde68a',
+    fontSize: '0.875rem',
+    color: '#92400e',
+    fontWeight: '500' as const,
+    flex: '1',
+    maxWidth: '500px',
+  },
+  compactFieldInline: {
+    flex: '1',
+    maxWidth: '500px',
+  },
+  inlineDiagnosisInput: {
+    width: '100%',
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '6px',
+    backgroundColor: '#ffffff',
+  },
+  dot: {
+    color: '#cbd5e0',
+  },
+  medicationsSection: {
+    backgroundColor: '#fff',
+    padding: '1.5rem',
+    borderRadius: '12px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
+    marginBottom: '1rem',
+    border: '2px solid rgb(59, 130, 246)',
+  },
+  medicationsTitle: {
+    fontSize: '1.25rem',
+    margin: 0,
+    color: '#1e293b',
+    fontWeight: '600' as const,
+    letterSpacing: '-0.025em',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
   },
   error: {
-    backgroundColor: '#fee',
-    color: '#c33',
+    backgroundColor: '#fee2e2',
+    color: '#991b1b',
     padding: '1rem',
-    borderRadius: '4px',
+    borderRadius: '8px',
     marginBottom: '1rem',
+    fontSize: '0.9rem',
+    border: '1px solid #fecaca',
   },
   section: {
     backgroundColor: 'white',
     padding: '1.5rem',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    marginBottom: '1.5rem',
+    borderRadius: '12px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+    marginBottom: '1.25rem',
+    border: '1px solid #e2e8f0',
   },
   sectionHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '1rem',
+    marginBottom: '1.25rem',
   },
   sectionTitle: {
-    fontSize: '1.25rem',
+    fontSize: '1.125rem',
     margin: 0,
-    color: '#2c3e50',
+    color: '#1e293b',
+    fontWeight: '600',
+    letterSpacing: '-0.025em',
   },
   formGroup: {
     marginBottom: '1rem',
@@ -456,110 +657,195 @@ const styles = {
   label: {
     display: 'block',
     marginBottom: '0.5rem',
-    fontWeight: 'bold',
-    fontSize: '0.9rem',
-    color: '#333',
+    fontWeight: '500',
+    fontSize: '0.875rem',
+    color: '#475569',
   },
   required: {
-    color: '#991b1b',
+    color: '#dc2626',
   },
   input: {
     width: '100%',
-    padding: '0.75rem',
-    fontSize: '1rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '8px',
     boxSizing: 'border-box' as const,
+    transition: 'all 0.2s ease',
+    backgroundColor: '#ffffff',
   },
   select: {
     width: '100%',
-    padding: '0.75rem',
-    fontSize: '1rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '8px',
     boxSizing: 'border-box' as const,
+    transition: 'all 0.2s ease',
+    backgroundColor: '#ffffff',
+    cursor: 'pointer',
   },
   textarea: {
     width: '100%',
-    padding: '0.75rem',
-    fontSize: '1rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '8px',
     boxSizing: 'border-box' as const,
     fontFamily: 'inherit',
     resize: 'vertical' as const,
+    transition: 'all 0.2s ease',
   },
   patientInfo: {
-    marginTop: '0.5rem',
+    marginTop: '0.75rem',
     marginBottom: '1rem',
-    padding: '0.75rem',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '4px',
-    fontSize: '0.9rem',
+    padding: '0.875rem 1rem',
+    backgroundColor: '#f1f5f9',
+    borderRadius: '8px',
+    fontSize: '0.875rem',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
   },
   addButton: {
-    padding: '0.5rem 1rem',
-    backgroundColor: '#166534',
+    padding: '0.625rem 1.25rem',
+    backgroundColor: 'rgb(59, 130, 246)',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '0.9rem',
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
   },
-  medicationCard: {
-    border: '1px solid #e0e0e0',
-    borderRadius: '4px',
-    padding: '1rem',
-    marginBottom: '1rem',
-    backgroundColor: '#fafafa',
+  // Table styles for modern ERP layout
+  tableContainer: {
+    overflowX: 'auto' as const,
+    marginTop: '1rem',
+    borderRadius: '8px',
+    border: '1px solid #e2e8f0',
   },
-  medicationHeader: {
+  table: {
+    width: '100%',
+    borderCollapse: 'separate' as const,
+    borderSpacing: '0',
+    fontSize: '0.875rem',
+  },
+  tableHeaderRow: {
+    backgroundColor: '#f8fafc',
+    borderBottom: '2px solid #e2e8f0',
+  },
+  tableHeader: {
+    padding: '0.875rem 1rem',
+    textAlign: 'left' as const,
+    fontWeight: '600',
+    color: '#475569',
+    fontSize: '0.8125rem',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.025em',
+    borderRight: '1px solid #f1f5f9',
+  },
+  tableRow: {
+    borderBottom: '1px solid #f1f5f9',
+    transition: 'background-color 0.15s ease',
+  },
+  tableCell: {
+    padding: '0.75rem 1rem',
+    borderRight: '1px solid #f1f5f9',
+    verticalAlign: 'middle' as const,
+  },
+  tableInput: {
+    width: '100%',
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '6px',
+    boxSizing: 'border-box' as const,
+    transition: 'all 0.2s ease',
+    backgroundColor: '#ffffff',
+  },
+  checkboxGroup: {
     display: 'flex',
-    justifyContent: 'space-between',
+    gap: '1rem',
     alignItems: 'center',
-    marginBottom: '1rem',
-    paddingBottom: '0.5rem',
-    borderBottom: '1px solid #ddd',
+    justifyContent: 'center',
   },
-  medicationNumber: {
-    fontWeight: 'bold',
-    fontSize: '1rem',
-    color: '#2c3e50',
+  checkboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    cursor: 'pointer',
+    fontSize: '0.8125rem',
+    color: '#475569',
+    transition: 'color 0.15s ease',
   },
-  removeButton: {
-    padding: '0.25rem 0.75rem',
-    backgroundColor: '#991b1b',
+  checkbox: {
+    width: '18px',
+    height: '18px',
+    cursor: 'pointer',
+    accentColor: '#059669',
+  },
+  checkboxText: {
+    fontSize: '0.8125rem',
+    color: '#475569',
+    fontWeight: '500',
+  },
+  timingSubHeader: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    marginTop: '0.375rem',
+    fontSize: '0.6875rem',
+    color: '#64748b',
+    fontWeight: '500',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.025em',
+  },
+  removeButtonSmall: {
+    width: '32px',
+    height: '32px',
+    padding: '0',
+    backgroundColor: '#ef4444',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '0.85rem',
+    fontSize: '1.25rem',
+    lineHeight: '1',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
   },
   buttonGroup: {
     display: 'flex',
     gap: '1rem',
     marginTop: '2rem',
-    marginBottom: '2rem',
+    marginBottom: '1rem',
   },
   submitButton: {
     flex: 1,
-    padding: '1rem',
+    padding: '0.875rem 1.5rem',
     fontSize: '1rem',
-    backgroundColor: '#166534',
+    backgroundColor: 'rgb(59, 130, 246)',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: 'bold',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
   },
   cancelButton: {
-    padding: '1rem 2rem',
+    padding: '0.875rem 1.5rem',
     fontSize: '1rem',
-    backgroundColor: '#95a5a6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
     cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
   },
 };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { visitService, patientService } from '../../services';
-import { Patient, VisitFormData, BloodInvestigation } from '../../types';
+import type { Patient, VisitFormData, BloodInvestigation } from '../../types';
 
 const VisitNew = () => {
   const navigate = useNavigate();
@@ -131,8 +131,9 @@ const VisitNew = () => {
       await visitService.create(formData);
       alert('Visit created successfully!');
       navigate(`/patients/${formData.patientId}`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create visit');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to create visit');
       console.error('Create visit error:', err);
     } finally {
       setLoading(false);
@@ -141,116 +142,85 @@ const VisitNew = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>New Visit Entry</h1>
-          <p style={styles.subtitle}>Record comprehensive patient examination and diagnosis</p>
-        </div>
-        <div style={styles.headerActions}>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            style={styles.cancelButton}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit}>
         {error && <div style={styles.error}>{error}</div>}
 
-        {/* Patient Selection */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            Patient Information
-          </h2>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>
-              Select Patient <span style={styles.required}>*</span>
-            </label>
-            <select
-              value={formData.patientId}
-              onChange={handlePatientChange}
-              style={styles.select}
-              required
-            >
-              <option value="">-- Select Patient --</option>
-              {patients.map(patient => (
-                <option key={patient._id} value={patient._id}>
-                  {patient.name} - {patient.phoneNumber}
-                </option>
-              ))}
-            </select>
+        {/* Compact Header */}
+        <div style={styles.compactHeader}>
+          <div style={styles.headerRow}>
+            <div style={styles.headerLeft}>
+              <h1 style={styles.compactTitle}>New Visit Entry</h1>
+            </div>
+            <div style={styles.headerRight}>
+              <div style={styles.compactField}>
+                <label style={styles.compactLabel}>Patient *</label>
+                <select
+                  value={formData.patientId}
+                  onChange={handlePatientChange}
+                  style={styles.compactSelect}
+                  required
+                >
+                  <option value="">-- Select Patient --</option>
+                  {patients.map(patient => (
+                    <option key={patient._id} value={patient._id}>
+                      {patient.name} - {patient.phoneNumber}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div style={styles.compactField}>
+                <label style={styles.compactLabel}>Visit Date</label>
+                <input
+                  type="date"
+                  name="visitDate"
+                  value={formData.visitDate instanceof Date ? formData.visitDate.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFormData({ ...formData, visitDate: new Date(e.target.value) })}
+                  style={styles.compactInput}
+                />
+              </div>
+              <div style={styles.compactField}>
+                <label style={styles.compactLabel}>Consulting Doctor *</label>
+                <input
+                  type="text"
+                  name="consultingDoctor"
+                  value={formData.consultingDoctor}
+                  onChange={handleChange}
+                  placeholder="Doctor name"
+                  style={styles.compactInput}
+                  required
+                />
+              </div>
+            </div>
           </div>
           {selectedPatient && (
-            <div style={styles.patientInfo}>
-              <strong>Age:</strong> {selectedPatient.age || 'N/A'} |
-              <strong> Gender:</strong> {selectedPatient.gender}
+            <div style={styles.patientBadge}>
+              <span style={styles.badgeLabel}>Patient Info:</span>
+              <span style={styles.badgeValue}>{selectedPatient.name}</span>
+              <span style={styles.badgeSeparator}>|</span>
+              <span style={styles.badgeValue}>Age: {selectedPatient.age || 'N/A'}</span>
+              <span style={styles.badgeSeparator}>|</span>
+              <span style={styles.badgeValue}>Gender: {selectedPatient.gender}</span>
             </div>
           )}
-        </div>
-
-        {/* Basic Info */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            Visit Details
-          </h2>
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Visit Date</label>
-              <input
-                type="date"
-                name="visitDate"
-                value={formData.visitDate instanceof Date ? formData.visitDate.toISOString().split('T')[0] : ''}
-                onChange={(e) => setFormData({ ...formData, visitDate: new Date(e.target.value) })}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>
-                Consulting Doctor <span style={styles.required}>*</span>
-              </label>
-              <input
-                type="text"
-                name="consultingDoctor"
-                value={formData.consultingDoctor}
-                onChange={handleChange}
-                placeholder="Doctor name"
-                style={styles.input}
-                required
-              />
-            </div>
-          </div>
         </div>
 
         {/* Vitals */}
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
             Vitals
           </h2>
           <div style={styles.formRow}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Pulse Rate (bpm)</label>
+              <label style={styles.label}>Pulse (bpm)</label>
               <input
                 type="number"
                 name="vitals.pulseRate"
                 value={formData.vitals?.pulseRate || ''}
                 onChange={handleChange}
-                placeholder="e.g., 72"
+                placeholder="72"
                 style={styles.input}
               />
             </div>
@@ -261,43 +231,41 @@ const VisitNew = () => {
                 name="vitals.spO2"
                 value={formData.vitals?.spO2 || ''}
                 onChange={handleChange}
-                placeholder="e.g., 98"
+                placeholder="98"
                 style={styles.input}
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Temperature (°F)</label>
+              <label style={styles.label}>Temp (°F)</label>
               <input
                 type="number"
                 step="0.1"
                 name="vitals.temperature"
                 value={formData.vitals?.temperature || ''}
                 onChange={handleChange}
-                placeholder="e.g., 98.6"
+                placeholder="98.6"
                 style={styles.input}
               />
             </div>
-          </div>
-          <div style={styles.formRow}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Blood Pressure - Systolic</label>
+              <label style={styles.label}>BP Systolic</label>
               <input
                 type="number"
                 name="vitals.bloodPressure.systolic"
                 value={formData.vitals?.bloodPressure?.systolic || ''}
                 onChange={handleChange}
-                placeholder="e.g., 120"
+                placeholder="120"
                 style={styles.input}
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Blood Pressure - Diastolic</label>
+              <label style={styles.label}>BP Diastolic</label>
               <input
                 type="number"
                 name="vitals.bloodPressure.diastolic"
                 value={formData.vitals?.bloodPressure?.diastolic || ''}
                 onChange={handleChange}
-                placeholder="e.g., 80"
+                placeholder="80"
                 style={styles.input}
               />
             </div>
@@ -307,7 +275,7 @@ const VisitNew = () => {
         {/* History */}
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14 2 14 8 20 8" />
               <line x1="16" y1="13" x2="8" y2="13" />
@@ -322,7 +290,7 @@ const VisitNew = () => {
               name="chiefComplaints"
               value={formData.chiefComplaints}
               onChange={handleChange}
-              rows={3}
+              rows={2}
               style={styles.textarea}
             />
           </div>
@@ -333,7 +301,7 @@ const VisitNew = () => {
                 name="pastHistory"
                 value={formData.pastHistory}
                 onChange={handleChange}
-                rows={2}
+                rows={1}
                 style={styles.textarea}
               />
             </div>
@@ -343,27 +311,27 @@ const VisitNew = () => {
                 name="familyHistory"
                 value={formData.familyHistory}
                 onChange={handleChange}
-                rows={2}
+                rows={1}
                 style={styles.textarea}
               />
             </div>
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Marital History</label>
-            <textarea
-              name="maritalHistory"
-              value={formData.maritalHistory}
-              onChange={handleChange}
-              rows={2}
-              style={styles.textarea}
-            />
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Marital History</label>
+              <textarea
+                name="maritalHistory"
+                value={formData.maritalHistory}
+                onChange={handleChange}
+                rows={1}
+                style={styles.textarea}
+              />
+            </div>
           </div>
         </div>
 
         {/* General Examination */}
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -422,85 +390,91 @@ const VisitNew = () => {
         {/* Systemic Examination */}
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
             Systemic Examination
           </h2>
           <div style={styles.formRow}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>CVS (Cardiovascular)</label>
+              <label style={styles.label}>CVS</label>
               <textarea
                 name="systemicExamination.cvs"
                 value={formData.systemicExamination?.cvs || ''}
                 onChange={handleChange}
-                rows={2}
+                rows={1}
                 style={styles.textarea}
+                placeholder="Cardiovascular findings..."
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>RS (Respiratory)</label>
+              <label style={styles.label}>RS</label>
               <textarea
                 name="systemicExamination.rs"
                 value={formData.systemicExamination?.rs || ''}
                 onChange={handleChange}
-                rows={2}
+                rows={1}
                 style={styles.textarea}
+                placeholder="Respiratory findings..."
               />
             </div>
-          </div>
-          <div style={styles.formRow}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>PA (Per Abdomen)</label>
+              <label style={styles.label}>PA</label>
               <textarea
                 name="systemicExamination.pa"
                 value={formData.systemicExamination?.pa || ''}
                 onChange={handleChange}
-                rows={2}
+                rows={1}
                 style={styles.textarea}
+                placeholder="Abdominal findings..."
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>CNS (Central Nervous System)</label>
+              <label style={styles.label}>CNS</label>
               <textarea
                 name="systemicExamination.cns"
                 value={formData.systemicExamination?.cns || ''}
                 onChange={handleChange}
-                rows={2}
+                rows={1}
                 style={styles.textarea}
+                placeholder="CNS findings..."
               />
             </div>
           </div>
         </div>
 
-        {/* Assessment & Plan */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        {/* Assessment & Plan - Prominent Section */}
+        <div style={styles.prominentSection}>
+          <h2 style={styles.prominentSectionTitle}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="9 11 12 14 22 4" />
               <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
             </svg>
             Assessment & Plan
           </h2>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Diagnosis</label>
-            <textarea
-              name="diagnosis"
-              value={formData.diagnosis}
-              onChange={handleChange}
-              rows={2}
-              style={styles.textarea}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Treatment</label>
-            <textarea
-              name="treatment"
-              value={formData.treatment}
-              onChange={handleChange}
-              rows={2}
-              style={styles.textarea}
-            />
+          <div style={styles.formRow}>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Diagnosis</label>
+              <textarea
+                name="diagnosis"
+                value={formData.diagnosis}
+                onChange={handleChange}
+                rows={3}
+                style={styles.prominentTextarea}
+                placeholder="Diagnosis..."
+              />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Treatment</label>
+              <textarea
+                name="treatment"
+                value={formData.treatment}
+                onChange={handleChange}
+                rows={3}
+                style={styles.prominentTextarea}
+                placeholder="Treatment plan..."
+              />
+            </div>
           </div>
           <div style={styles.formRow}>
             <div style={styles.formGroup}>
@@ -509,8 +483,9 @@ const VisitNew = () => {
                 name="investigation"
                 value={formData.investigation}
                 onChange={handleChange}
-                rows={2}
-                style={styles.textarea}
+                rows={3}
+                style={styles.prominentTextarea}
+                placeholder="Investigation recommendations..."
               />
             </div>
             <div style={styles.formGroup}>
@@ -519,20 +494,21 @@ const VisitNew = () => {
                 name="advice"
                 value={formData.advice}
                 onChange={handleChange}
-                rows={2}
-                style={styles.textarea}
+                rows={3}
+                style={styles.prominentTextarea}
+                placeholder="Advice for patient..."
               />
             </div>
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Review Date</label>
-            <input
-              type="date"
-              name="reviewDate"
-              value={formData.reviewDate instanceof Date ? formData.reviewDate.toISOString().split('T')[0] : ''}
-              onChange={(e) => setFormData({ ...formData, reviewDate: new Date(e.target.value) })}
-              style={styles.input}
-            />
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Review Date</label>
+              <input
+                type="date"
+                name="reviewDate"
+                value={formData.reviewDate instanceof Date ? formData.reviewDate.toISOString().split('T')[0] : ''}
+                onChange={(e) => setFormData({ ...formData, reviewDate: new Date(e.target.value) })}
+                style={styles.input}
+              />
+            </div>
           </div>
         </div>
 
@@ -540,8 +516,9 @@ const VisitNew = () => {
         <div style={styles.section}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
               </svg>
               Blood Investigations
             </h2>
@@ -659,134 +636,215 @@ const styles = {
   container: {
     maxWidth: '1400px',
     margin: '0 auto',
+    padding: '1rem',
+    backgroundColor: '#f8f9fa',
+    minHeight: '100vh',
   },
-  header: {
+  compactHeader: {
+    backgroundColor: 'white',
+    padding: '1rem 1.5rem',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    marginBottom: '1.5rem',
+  },
+  headerRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '2rem',
-    padding: '1.5rem',
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    alignItems: 'center',
+    gap: '2rem',
+    flexWrap: 'wrap' as const,
   },
-  title: {
-    fontSize: '2rem',
-    margin: 0,
-    marginBottom: '0.25rem',
-    color: '#0f172a',
-    fontWeight: '700',
+  headerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
   },
-  subtitle: {
-    fontSize: '0.95rem',
+  headerRight: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: '1rem',
+    flexWrap: 'wrap' as const,
+  },
+  compactTitle: {
+    fontSize: '1.5rem',
     margin: 0,
+    color: '#2c3e50',
+    fontWeight: '600' as const,
+  },
+  compactField: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.25rem',
+  },
+  compactLabel: {
+    fontSize: '0.75rem',
+    fontWeight: '500' as const,
     color: '#64748b',
   },
-  headerActions: {
+  compactInput: {
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '4px',
+    minWidth: '150px',
+  },
+  compactSelect: {
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '4px',
+    minWidth: '200px',
+    cursor: 'pointer',
+  },
+  patientBadge: {
+    marginTop: '1rem',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#eff6ff',
+    border: '1px solid #bfdbfe',
+    borderRadius: '4px',
+    fontSize: '0.875rem',
+    color: '#1e40af',
     display: 'flex',
-    gap: '0.75rem',
+    gap: '0.5rem',
+    flexWrap: 'wrap' as const,
+  },
+  badgeLabel: {
+    fontWeight: '600' as const,
+  },
+  badgeValue: {
+    fontWeight: '400' as const,
+  },
+  badgeSeparator: {
+    color: '#93c5fd',
   },
   error: {
-    backgroundColor: '#fef2f2',
-    color: '#dc2626',
-    padding: '1rem 1.25rem',
+    backgroundColor: '#fee2e2',
+    color: '#991b1b',
+    padding: '1rem',
     borderRadius: '8px',
-    marginBottom: '1.5rem',
-    border: '1px solid #fee2e2',
-    fontSize: '0.95rem',
+    marginBottom: '1rem',
+    border: '1px solid #fecaca',
+    fontSize: '0.9rem',
   },
   section: {
     backgroundColor: 'white',
-    padding: '1.75rem',
+    padding: '1.25rem',
     borderRadius: '12px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-    marginBottom: '1.5rem',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+    marginBottom: '1rem',
     border: '1px solid #e2e8f0',
+  },
+  prominentSection: {
+    backgroundColor: 'white',
+    padding: '1.5rem',
+    borderRadius: '12px',
+    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.15)',
+    marginBottom: '1rem',
+    border: '2px solid rgb(59, 130, 246)',
   },
   sectionHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '1.5rem',
+    marginBottom: '1.25rem',
   },
   sectionTitle: {
-    fontSize: '1.1rem',
+    fontSize: '1rem',
     margin: 0,
-    marginBottom: '1.5rem',
-    color: '#0f172a',
-    fontWeight: '600',
+    marginBottom: '1rem',
+    color: '#1e293b',
+    fontWeight: '600' as const,
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
     paddingBottom: '0.75rem',
-    borderBottom: '2px solid #e2e8f0',
+    borderBottom: '1px solid #e2e8f0',
+    letterSpacing: '-0.025em',
+  },
+  prominentSectionTitle: {
+    fontSize: '1.125rem',
+    margin: 0,
+    marginBottom: '1.25rem',
+    color: 'rgb(59, 130, 246)',
+    fontWeight: '600' as const,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    paddingBottom: '0.75rem',
+    borderBottom: '2px solid rgb(59, 130, 246)',
+    letterSpacing: '-0.025em',
   },
   formGroup: {
-    marginBottom: '1.25rem',
+    marginBottom: '1rem',
     flex: 1,
   },
   formRow: {
-    display: 'flex',
-    gap: '1.25rem',
-    flexWrap: 'wrap' as const,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '1rem',
   },
   label: {
     display: 'block',
     marginBottom: '0.5rem',
-    fontWeight: '600',
+    fontWeight: '500' as const,
     fontSize: '0.875rem',
-    color: '#334155',
-    letterSpacing: '0.01em',
+    color: '#475569',
   },
   required: {
-    color: '#ef4444',
+    color: '#dc2626',
     marginLeft: '0.25rem',
   },
   input: {
     width: '100%',
-    padding: '0.75rem 1rem',
-    fontSize: '0.95rem',
-    border: '1.5px solid #e2e8f0',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    border: '1px solid #cbd5e0',
     borderRadius: '8px',
     boxSizing: 'border-box' as const,
     transition: 'all 0.2s ease',
     backgroundColor: '#ffffff',
-    color: '#0f172a',
+    color: '#1e293b',
   },
   select: {
     width: '100%',
-    padding: '0.75rem 1rem',
-    fontSize: '0.95rem',
-    border: '1.5px solid #e2e8f0',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    border: '1px solid #cbd5e0',
     borderRadius: '8px',
     boxSizing: 'border-box' as const,
     transition: 'all 0.2s ease',
     backgroundColor: '#ffffff',
-    color: '#0f172a',
+    color: '#1e293b',
     cursor: 'pointer',
   },
   textarea: {
     width: '100%',
-    padding: '0.75rem 1rem',
-    fontSize: '0.95rem',
-    border: '1.5px solid #e2e8f0',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    border: '1px solid #cbd5e0',
     borderRadius: '8px',
     boxSizing: 'border-box' as const,
     fontFamily: 'inherit',
     resize: 'vertical' as const,
-    minHeight: '80px',
     transition: 'all 0.2s ease',
     backgroundColor: '#ffffff',
-    color: '#0f172a',
+    color: '#1e293b',
+    lineHeight: '1.5',
   },
-  patientInfo: {
-    marginTop: '1rem',
-    padding: '1rem 1.25rem',
-    backgroundColor: '#f8fafc',
+  prominentTextarea: {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    fontSize: '0.9375rem',
+    border: '1px solid rgb(59, 130, 246)',
     borderRadius: '8px',
-    fontSize: '0.9rem',
-    color: '#475569',
-    border: '1px solid #e2e8f0',
+    boxSizing: 'border-box' as const,
+    fontFamily: 'inherit',
+    resize: 'vertical' as const,
+    transition: 'all 0.2s ease',
+    backgroundColor: '#ffffff',
+    color: '#1e293b',
+    lineHeight: '1.5',
+    minHeight: '90px',
   },
   checkboxGroup: {
     display: 'grid',
@@ -798,31 +856,33 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
-    fontSize: '0.95rem',
-    color: '#334155',
+    fontSize: '0.875rem',
+    color: '#475569',
     cursor: 'pointer',
     padding: '0.5rem',
     borderRadius: '6px',
     transition: 'background-color 0.2s ease',
+    fontWeight: '500' as const,
   },
   addButton: {
     padding: '0.625rem 1.25rem',
-    backgroundColor: '#3b82f6',
+    backgroundColor: 'rgb(59, 130, 246)',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '0.9rem',
-    fontWeight: '600',
+    fontSize: '0.875rem',
+    fontWeight: '600' as const,
     transition: 'all 0.2s ease',
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
+    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
   },
   bloodTestCard: {
-    border: '1.5px solid #e2e8f0',
-    borderRadius: '10px',
-    padding: '1.25rem',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    padding: '1rem',
     marginBottom: '1rem',
     backgroundColor: '#f8fafc',
     transition: 'border-color 0.2s ease',
@@ -831,42 +891,44 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '1.25rem',
-    fontWeight: '600',
-    color: '#0f172a',
+    marginBottom: '1rem',
+    fontWeight: '600' as const,
+    color: '#1e293b',
+    fontSize: '0.875rem',
   },
   removeButton: {
-    padding: '0.375rem 0.875rem',
+    padding: '0.625rem 1rem',
     backgroundColor: '#ef4444',
     color: 'white',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '0.85rem',
-    fontWeight: '500',
+    fontSize: '0.875rem',
+    fontWeight: '600' as const,
     transition: 'all 0.2s ease',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
   },
   submitSection: {
     position: 'sticky' as const,
     bottom: '0',
-    marginTop: '2rem',
+    marginTop: '1.5rem',
     marginBottom: '0',
-    padding: '1.5rem',
+    padding: '1.25rem',
     backgroundColor: 'white',
     borderRadius: '12px',
-    boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+    boxShadow: '0 -4px 12px rgba(0,0,0,0.08)',
     border: '1px solid #e2e8f0',
   },
   submitButton: {
     width: '100%',
-    padding: '1rem 2rem',
+    padding: '0.875rem 1.5rem',
     fontSize: '1rem',
     backgroundColor: '#3b82f6',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '600',
+    fontWeight: '600' as const,
     transition: 'all 0.2s ease',
     boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
   },
@@ -881,13 +943,13 @@ const styles = {
   },
   cancelButton: {
     padding: '0.625rem 1.25rem',
-    fontSize: '0.9rem',
+    fontSize: '0.9375rem',
     backgroundColor: '#f1f5f9',
     color: '#475569',
     border: '1px solid #e2e8f0',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '500',
+    fontWeight: '600' as const,
     transition: 'all 0.2s ease',
   },
 };

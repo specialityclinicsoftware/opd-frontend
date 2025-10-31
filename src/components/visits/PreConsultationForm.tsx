@@ -70,20 +70,20 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
       {/* Vitals Section */}
       <div style={styles.section}>
         <h2 style={styles.sectionTitle}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
           </svg>
           Vitals
         </h2>
         <div style={styles.formRow}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Pulse Rate (bpm)</label>
+            <label style={styles.label}>Pulse (bpm)</label>
             <input
               type="number"
               name="vitals.pulseRate"
               value={formData.vitals?.pulseRate || ''}
               onChange={handleChange}
-              placeholder="e.g., 72"
+              placeholder="72"
               style={styles.input}
               disabled={readOnly}
             />
@@ -95,46 +95,44 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
               name="vitals.spO2"
               value={formData.vitals?.spO2 || ''}
               onChange={handleChange}
-              placeholder="e.g., 98"
+              placeholder="98"
               style={styles.input}
               disabled={readOnly}
             />
           </div>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Temperature (°F)</label>
+            <label style={styles.label}>Temp (°F)</label>
             <input
               type="number"
               step="0.1"
               name="vitals.temperature"
               value={formData.vitals?.temperature || ''}
               onChange={handleChange}
-              placeholder="e.g., 98.6"
+              placeholder="98.6"
               style={styles.input}
               disabled={readOnly}
             />
           </div>
-        </div>
-        <div style={styles.formRow}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Blood Pressure - Systolic</label>
+            <label style={styles.label}>BP Systolic</label>
             <input
               type="number"
               name="vitals.bloodPressure.systolic"
               value={formData.vitals?.bloodPressure?.systolic || ''}
               onChange={handleChange}
-              placeholder="e.g., 120"
+              placeholder="120"
               style={styles.input}
               disabled={readOnly}
             />
           </div>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Blood Pressure - Diastolic</label>
+            <label style={styles.label}>BP Diastolic</label>
             <input
               type="number"
               name="vitals.bloodPressure.diastolic"
               value={formData.vitals?.bloodPressure?.diastolic || ''}
               onChange={handleChange}
-              placeholder="e.g., 80"
+              placeholder="80"
               style={styles.input}
               disabled={readOnly}
             />
@@ -145,7 +143,7 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
       {/* History Section */}
       <div style={styles.section}>
         <h2 style={styles.sectionTitle}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
             <line x1="16" y1="13" x2="8" y2="13" />
@@ -160,7 +158,7 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
             name="chiefComplaints"
             value={formData.chiefComplaints || ''}
             onChange={handleChange}
-            rows={3}
+            rows={2}
             style={styles.textarea}
             disabled={readOnly}
           />
@@ -172,7 +170,7 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
               name="pastHistory"
               value={formData.pastHistory || ''}
               onChange={handleChange}
-              rows={2}
+              rows={1}
               style={styles.textarea}
               disabled={readOnly}
             />
@@ -183,29 +181,29 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
               name="familyHistory"
               value={formData.familyHistory || ''}
               onChange={handleChange}
-              rows={2}
+              rows={1}
               style={styles.textarea}
               disabled={readOnly}
             />
           </div>
-        </div>
-        <div style={styles.formGroup}>
-          <label style={styles.label}>Marital History</label>
-          <textarea
-            name="maritalHistory"
-            value={formData.maritalHistory || ''}
-            onChange={handleChange}
-            rows={2}
-            style={styles.textarea}
-            disabled={readOnly}
-          />
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Marital History</label>
+            <textarea
+              name="maritalHistory"
+              value={formData.maritalHistory || ''}
+              onChange={handleChange}
+              rows={1}
+              style={styles.textarea}
+              disabled={readOnly}
+            />
+          </div>
         </div>
       </div>
 
       {/* General Examination Section */}
       <div style={styles.section}>
         <h2 style={styles.sectionTitle}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
             <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -268,9 +266,9 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
 
       {/* Blood Investigations Section */}
       <div style={styles.section}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
           <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
@@ -283,7 +281,7 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
           )}
         </div>
         {formData.bloodInvestigations?.map((test, index) => (
-          <div key={index} style={{ ...styles.bloodTestGroup, marginBottom: '15px' }}>
+          <div key={index} style={{ ...styles.bloodTestGroup, marginBottom: '0.5rem' }}>
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
                 <label style={styles.label}>Test Name</label>
@@ -356,93 +354,105 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
   );
 };
 
-// Inline styles (matching VisitNew.tsx structure)
+// Modern professional ERP-style inline styles
 const styles = {
   section: {
     backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    marginBottom: '20px',
+    padding: '1.25rem',
+    borderRadius: '12px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+    marginBottom: '1rem',
+    border: '1px solid #e2e8f0',
   },
   sectionTitle: {
-    fontSize: '18px',
+    fontSize: '1rem',
     fontWeight: '600' as const,
-    marginBottom: '15px',
+    marginBottom: '1rem',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    color: '#1a1a1a',
+    gap: '0.5rem',
+    color: '#1e293b',
+    letterSpacing: '-0.025em',
   },
   formRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '15px',
-    marginBottom: '15px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '1rem',
+    marginBottom: '0.75rem',
   },
   formGroup: {
     display: 'flex',
     flexDirection: 'column' as const,
   },
   label: {
-    fontSize: '14px',
+    fontSize: '0.875rem',
     fontWeight: '500' as const,
-    marginBottom: '5px',
-    color: '#4a5568',
+    marginBottom: '0.5rem',
+    color: '#475569',
   },
   input: {
-    padding: '10px',
+    padding: '0.625rem 0.875rem',
     border: '1px solid #cbd5e0',
-    borderRadius: '6px',
-    fontSize: '14px',
+    borderRadius: '8px',
+    fontSize: '0.9375rem',
     backgroundColor: '#fff',
-    transition: 'border-color 0.2s',
+    transition: 'all 0.2s ease',
+    color: '#1e293b',
   },
   textarea: {
-    padding: '10px',
+    padding: '0.625rem 0.875rem',
     border: '1px solid #cbd5e0',
-    borderRadius: '6px',
-    fontSize: '14px',
+    borderRadius: '8px',
+    fontSize: '0.9375rem',
     fontFamily: 'inherit',
     resize: 'vertical' as const,
     backgroundColor: '#fff',
+    lineHeight: '1.5',
+    transition: 'all 0.2s ease',
+    color: '#1e293b',
   },
   checkboxGroup: {
     display: 'flex',
     flexWrap: 'wrap' as const,
-    gap: '15px',
+    gap: '1.25rem',
   },
   checkboxLabel: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    fontSize: '14px',
-    color: '#4a5568',
+    gap: '0.5rem',
+    fontSize: '0.875rem',
+    color: '#475569',
     cursor: 'pointer',
+    fontWeight: '500' as const,
   },
   addButton: {
-    backgroundColor: '#4299e1',
+    backgroundColor: '#059669',
     color: 'white',
     border: 'none',
-    padding: '8px 16px',
-    borderRadius: '6px',
-    fontSize: '14px',
-    fontWeight: '500' as const,
+    padding: '0.625rem 1.25rem',
+    borderRadius: '8px',
+    fontSize: '0.875rem',
+    fontWeight: '600' as const,
     cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
   },
   removeButton: {
-    backgroundColor: '#f56565',
+    backgroundColor: '#ef4444',
     color: 'white',
     border: 'none',
-    padding: '10px 16px',
-    borderRadius: '6px',
-    fontSize: '14px',
+    padding: '0.625rem 1rem',
+    borderRadius: '8px',
+    fontSize: '0.875rem',
+    fontWeight: '600' as const,
     cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
   },
   bloodTestGroup: {
-    padding: '15px',
-    backgroundColor: '#f7fafc',
-    borderRadius: '6px',
+    padding: '1rem',
+    backgroundColor: '#f8fafc',
+    borderRadius: '8px',
     border: '1px solid #e2e8f0',
   },
 };

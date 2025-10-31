@@ -6,6 +6,13 @@ export interface Medication {
   route: string;        // Oral/IV/Topical
   instructions?: string;
   timing?: string;
+  // New timing structure for ERP-style prescription
+  morning?: boolean;
+  afternoon?: boolean;
+  evening?: boolean;
+  dinner?: boolean;
+  beforeMeal?: boolean;
+  afterMeal?: boolean;
 }
 
 export interface MedicationHistory {

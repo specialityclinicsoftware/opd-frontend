@@ -99,7 +99,7 @@ const VisitNewStaged = () => {
       setFormData({
         ...visit,
         visitDate: new Date(visit.visitDate),
-        reviewDate: visit.reviewDate ? new Date(visit.reviewDate) : undefined,
+        reviewDate: visit.reviewDate ? new Date(visit.reviewDate) : '',
       });
       setSelectedPatient(patients.find(p => p._id === visit.patientId) || null);
     } catch (err) {
@@ -286,7 +286,7 @@ const VisitNewStaged = () => {
         {/* Patient Selection - Always shown */}
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
@@ -322,7 +322,7 @@ const VisitNewStaged = () => {
         {/* Visit Details - Always shown */}
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
               <line x1="8" y1="2" x2="8" y2="6" />
@@ -391,7 +391,7 @@ const VisitNewStaged = () => {
           >
             {loading ? (
               <span style={styles.buttonContent}>
-                <svg style={styles.spinner} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <svg style={styles.spinner} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <circle cx="12" cy="12" r="10" strokeWidth="3" strokeDasharray="31.4 31.4" strokeLinecap="round">
                     <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
                   </circle>
@@ -400,7 +400,7 @@ const VisitNewStaged = () => {
               </span>
             ) : (
               <span style={styles.buttonContent}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                   <polyline points="17 21 17 13 7 13 7 21"/>
                   <polyline points="7 3 7 8 15 8"/>
@@ -421,27 +421,31 @@ const styles = {
   container: {
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '0 1rem',
+    padding: '1rem',
+    backgroundColor: '#f8f9fa',
+    minHeight: '100vh',
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: '1.5rem',
+    marginBottom: '1.25rem',
     padding: '1.5rem',
     backgroundColor: 'white',
     borderRadius: '12px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+    border: '1px solid #e2e8f0',
   },
   title: {
-    fontSize: '2rem',
+    fontSize: '1.75rem',
     margin: 0,
     marginBottom: '0.25rem',
-    color: '#0f172a',
-    fontWeight: '700' as const,
+    color: '#1e293b',
+    fontWeight: '600' as const,
+    letterSpacing: '-0.025em',
   },
   subtitle: {
-    fontSize: '0.95rem',
+    fontSize: '0.9375rem',
     margin: 0,
     color: '#64748b',
   },
@@ -453,165 +457,171 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: '2rem',
-    padding: '1.5rem',
+    marginBottom: '1.25rem',
+    padding: '1.25rem',
     backgroundColor: 'white',
     borderRadius: '12px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+    border: '1px solid #e2e8f0',
   },
   stageActive: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
-    padding: '1rem 1.5rem',
+    padding: '0.875rem 1.25rem',
     backgroundColor: '#3b82f6',
     color: 'white',
-    borderRadius: '8px',
+    borderRadius: '10px',
     fontWeight: '600' as const,
+    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
   },
   stageCompleted: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
-    padding: '1rem 1.5rem',
+    padding: '0.875rem 1.25rem',
     backgroundColor: '#10b981',
     color: 'white',
-    borderRadius: '8px',
+    borderRadius: '10px',
     fontWeight: '600' as const,
+    boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)',
   },
   stageInactive: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
-    padding: '1rem 1.5rem',
+    padding: '0.875rem 1.25rem',
     backgroundColor: '#f1f5f9',
     color: '#64748b',
-    borderRadius: '8px',
+    borderRadius: '10px',
     fontWeight: '500' as const,
+    border: '1px solid #e2e8f0',
   },
   stageNumber: {
-    width: '30px',
-    height: '30px',
+    width: '28px',
+    height: '28px',
     borderRadius: '50%',
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.25)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: '700' as const,
+    fontSize: '0.875rem',
   },
   stageLabel: {
-    fontSize: '0.95rem',
+    fontSize: '0.9375rem',
   },
   stageDivider: {
     width: '60px',
     height: '2px',
     backgroundColor: '#e2e8f0',
-    margin: '0 1rem',
+    margin: '0 0.75rem',
   },
   error: {
-    backgroundColor: '#fef2f2',
-    color: '#dc2626',
-    padding: '1rem 1.25rem',
+    backgroundColor: '#fee2e2',
+    color: '#991b1b',
+    padding: '1rem',
     borderRadius: '8px',
-    marginBottom: '1.5rem',
-    border: '1px solid #fee2e2',
-    fontSize: '0.95rem',
+    marginBottom: '1rem',
+    border: '1px solid #fecaca',
+    fontSize: '0.9rem',
   },
   errorBox: {
-    backgroundColor: '#fef2f2',
-    color: '#dc2626',
+    backgroundColor: '#fee2e2',
+    color: '#991b1b',
     padding: '2rem',
     borderRadius: '12px',
     textAlign: 'center' as const,
-    border: '2px solid #fee2e2',
+    border: '1px solid #fecaca',
     maxWidth: '600px',
-    margin: '4rem auto',
+    margin: '3rem auto',
   },
   section: {
     backgroundColor: 'white',
-    padding: '1.75rem',
+    padding: '1.25rem',
     borderRadius: '12px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-    marginBottom: '1.5rem',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+    marginBottom: '1rem',
     border: '1px solid #e2e8f0',
   },
   sectionTitle: {
-    fontSize: '1.1rem',
+    fontSize: '1rem',
     margin: 0,
-    marginBottom: '1.5rem',
-    color: '#0f172a',
+    marginBottom: '1rem',
+    color: '#1e293b',
     fontWeight: '600' as const,
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
     paddingBottom: '0.75rem',
-    borderBottom: '2px solid #e2e8f0',
+    borderBottom: '1px solid #e2e8f0',
+    letterSpacing: '-0.025em',
   },
   formGroup: {
-    marginBottom: '1.25rem',
+    marginBottom: '1rem',
   },
   formRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '1.25rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '1rem',
   },
   label: {
     display: 'block',
     marginBottom: '0.5rem',
-    fontWeight: '600' as const,
+    fontWeight: '500' as const,
     fontSize: '0.875rem',
-    color: '#334155',
+    color: '#475569',
   },
   required: {
-    color: '#ef4444',
+    color: '#dc2626',
     marginLeft: '0.25rem',
   },
   input: {
     width: '100%',
-    padding: '0.75rem 1rem',
-    fontSize: '0.95rem',
-    border: '1.5px solid #e2e8f0',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    border: '1px solid #cbd5e0',
     borderRadius: '8px',
     boxSizing: 'border-box' as const,
     transition: 'all 0.2s ease',
     backgroundColor: '#ffffff',
-    color: '#0f172a',
+    color: '#1e293b',
   },
   select: {
     width: '100%',
-    padding: '0.75rem 1rem',
-    fontSize: '0.95rem',
-    border: '1.5px solid #e2e8f0',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    border: '1px solid #cbd5e0',
     borderRadius: '8px',
     boxSizing: 'border-box' as const,
     transition: 'all 0.2s ease',
     backgroundColor: '#ffffff',
-    color: '#0f172a',
+    color: '#1e293b',
     cursor: 'pointer',
   },
   patientInfo: {
-    marginTop: '1rem',
-    padding: '1rem 1.25rem',
-    backgroundColor: '#f8fafc',
+    marginTop: '0.75rem',
+    padding: '0.875rem 1rem',
+    backgroundColor: '#f1f5f9',
     borderRadius: '8px',
-    fontSize: '0.9rem',
+    fontSize: '0.875rem',
     color: '#475569',
     border: '1px solid #e2e8f0',
   },
   submitSection: {
     position: 'sticky' as const,
     bottom: '0',
-    marginTop: '2rem',
+    marginTop: '1.5rem',
     marginBottom: '0',
-    padding: '1.5rem',
+    padding: '1.25rem',
     backgroundColor: 'white',
     borderRadius: '12px',
-    boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+    boxShadow: '0 -4px 12px rgba(0,0,0,0.08)',
     border: '1px solid #e2e8f0',
   },
   submitButton: {
     width: '100%',
-    padding: '1rem 2rem',
+    padding: '0.875rem 1.5rem',
     fontSize: '1rem',
     backgroundColor: '#3b82f6',
     color: 'white',
@@ -633,13 +643,13 @@ const styles = {
   },
   cancelButton: {
     padding: '0.625rem 1.25rem',
-    fontSize: '0.9rem',
+    fontSize: '0.9375rem',
     backgroundColor: '#f1f5f9',
     color: '#475569',
     border: '1px solid #e2e8f0',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '500' as const,
+    fontWeight: '600' as const,
     transition: 'all 0.2s ease',
   },
 };

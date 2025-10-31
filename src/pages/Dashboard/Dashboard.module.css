@@ -36,12 +36,13 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
+  border-top: 4px solid rgb(59, 130, 246);
 }
 
 .statNumber {
   font-size: 3rem;
   font-weight: bold;
-  color: #1e293b;
+  color: rgb(59, 130, 246);
   margin-bottom: 0.5rem;
 }
 
@@ -82,16 +83,17 @@
   padding: 0.75rem 2rem;
   font-size: 1rem;
   font-weight: 500;
-  background-color: #334155;
+  background-color: rgb(59, 130, 246);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 .searchButton:hover {
-  background-color: #1e293b;
+  background-color: rgb(37, 99, 235);
 }
 
 .actionsSection {
@@ -110,7 +112,7 @@
 
 .actionButton {
   padding: 0.75rem 1.5rem;
-  background-color: #334155;
+  background-color: rgb(59, 130, 246);
   color: white;
   text-decoration: none;
   border-radius: 6px;
@@ -118,10 +120,11 @@
   font-weight: 500;
   display: inline-block;
   transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 .actionButton:hover {
-  background-color: #1e293b;
+  background-color: rgb(37, 99, 235);
 }
 
 .visitsSection {
@@ -163,12 +166,12 @@
 }
 
 .viewLink {
-  color: #334155;
+  color: rgb(59, 130, 246);
   text-decoration: none;
   font-weight: 500;
 }
 
 .viewLink:hover {
-  color: #1e293b;
+  color: rgb(37, 99, 235);
   text-decoration: underline;
 }

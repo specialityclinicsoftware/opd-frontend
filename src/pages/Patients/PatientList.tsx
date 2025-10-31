@@ -132,12 +132,13 @@ const styles = {
   },
   registerButton: {
     padding: '0.75rem 1.5rem',
-    backgroundColor: '#166534',
+    backgroundColor: 'rgb(59, 130, 246)',
     color: 'white',
     textDecoration: 'none',
     borderRadius: '4px',
     fontSize: '1rem',
     display: 'inline-block',
+    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
   },
   loading: {
     textAlign: 'center' as const,
@@ -183,7 +184,7 @@ const styles = {
   },
   cardHeader: {
     padding: '1rem',
-    backgroundColor: '#334155',
+    backgroundColor: 'rgb(59, 130, 246)',
     color: 'white',
     display: 'flex',
     justifyContent: 'space-between',
@@ -215,12 +216,13 @@ const styles = {
   viewButton: {
     flex: 1,
     padding: '0.5rem',
-    backgroundColor: '#334155',
+    backgroundColor: 'rgb(59, 130, 246)',
     color: 'white',
     textDecoration: 'none',
     borderRadius: '4px',
     textAlign: 'center' as const,
     fontSize: '0.9rem',
+    boxShadow: '0 1px 3px rgba(59, 130, 246, 0.2)',
   },
   deleteButton: {
     padding: '0.5rem 1rem',

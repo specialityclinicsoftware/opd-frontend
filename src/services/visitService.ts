@@ -6,12 +6,19 @@ interface BackendVisitListResponse {
   success: boolean;
   count?: number;
   visits?: Visit[];
+  data?: {
+    count?: number;
+    visits?: Visit[];
+  };
   message?: string;
 }
 
 interface BackendVisitResponse {
   success: boolean;
   visit?: Visit;
+  data?: {
+    visit?: Visit;
+  };
   message?: string;
 }
 
@@ -19,10 +26,12 @@ export const visitService = {
   // Create new visit
   create: async (visitData: VisitFormData): Promise<ApiResponse<Visit>> => {
     const response = await apiClient.post<BackendVisitResponse>('/api/visits/', visitData);
+    // Handle both response formats: { visit: ... } and { data: { visit: ... } }
+    const visit = response.data.data?.visit || response.data.visit;
     return {
       success: response.data.success,
       message: response.data.message || 'Visit created successfully',
-      data: response.data.visit!,
+      data: visit!,
     };
   },
 
@@ -39,10 +48,12 @@ export const visitService = {
   // Get latest visit for a patient
   getLatest: async (patientId: string): Promise<ApiResponse<Visit>> => {
     const response = await apiClient.get<BackendVisitResponse>(`/api/visits/patient/${patientId}/latest`);
+    // Handle both response formats: { visit: ... } and { data: { visit: ... } }
+    const visit = response.data.data?.visit || response.data.visit;
     return {
       success: response.data.success,
       message: response.data.message || 'Latest visit fetched successfully',
-      data: response.data.visit!,
+      data: visit!,
     };
   },
 
@@ -59,20 +70,24 @@ export const visitService = {
   // Get specific visit
   getById: async (id: string): Promise<ApiResponse<Visit>> => {
     const response = await apiClient.get<BackendVisitResponse>(`/api/visits/${id}`);
+    // Handle both response formats: { visit: ... } and { data: { visit: ... } }
+    const visit = response.data.data?.visit || response.data.visit;
     return {
       success: response.data.success,
       message: response.data.message || 'Visit fetched successfully',
-      data: response.data.visit!,
+      data: visit!,
     };
   },
 
   // Update visit
   update: async (id: string, visitData: Partial<VisitFormData>): Promise<ApiResponse<Visit>> => {
     const response = await apiClient.put<BackendVisitResponse>(`/api/visits/${id}`, visitData);
+    // Handle both response formats: { visit: ... } and { data: { visit: ... } }
+    const visit = response.data.data?.visit || response.data.visit;
     return {
       success: response.data.success,
       message: response.data.message || 'Visit updated successfully',
-      data: response.data.visit!,
+      data: visit!,
     };
   },
 
@@ -89,10 +104,36 @@ export const visitService = {
   // Get pending visits (awaiting doctor review)
   getPendingVisits: async (): Promise<ApiResponse<Visit[]>> => {
     const response = await apiClient.get<BackendVisitListResponse>('/api/visits/pending');
+    // Handle nested data structure
+    const visits = response.data.data?.visits || response.data.visits || [];
     return {
       success: response.data.success,
       message: response.data.message || 'Pending visits fetched successfully',
-      data: response.data.visits || [],
+      data: visits,
+    };
+  },
+
+  // Workflow API: Submit pre-consultation data
+  submitPreConsultation: async (visitId: string, preConsultationData: Partial<VisitFormData>): Promise<ApiResponse<Visit>> => {
+    const response = await apiClient.post<BackendVisitResponse>(`/api/visits/workflow/${visitId}/pre-consultation`, preConsultationData);
+    // Handle both response formats: { visit: ... } and { data: { visit: ... } }
+    const visit = response.data.data?.visit || response.data.visit;
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Pre-consultation data saved successfully',
+      data: visit!,
+    };
+  },
+
+  // Workflow API: Submit consultation (diagnosis) data
+  submitConsultation: async (visitId: string, consultationData: Partial<VisitFormData>): Promise<ApiResponse<Visit>> => {
+    const response = await apiClient.post<BackendVisitResponse>(`/api/visits/workflow/${visitId}/consultation`, consultationData);
+    // Handle both response formats: { visit: ... } and { data: { visit: ... } }
+    const visit = response.data.data?.visit || response.data.visit;
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Consultation completed successfully',
+      data: visit!,
     };
   },
 };
