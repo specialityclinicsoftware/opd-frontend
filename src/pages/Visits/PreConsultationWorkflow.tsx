@@ -8,7 +8,8 @@ import PreConsultationForm from '../../components/visits/PreConsultationForm';
 const PreConsultationWorkflow = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, isDoctor, isNurse } = useAuth();
+  // Role checks for future access control
+  const { isDoctor: _isDoctor, isNurse: _isNurse } = useAuth();
   const [searchParams] = useSearchParams();
   const preselectedPatientId = searchParams.get('patientId');
 

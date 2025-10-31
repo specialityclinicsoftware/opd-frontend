@@ -28,9 +28,10 @@ export const FormGroup = ({ children, label, htmlFor, required, error, helpText 
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: boolean;
+  label?: string;
 }
 
-const Input = ({ error, className = '', ...props }: InputProps) => {
+const Input = ({ error, label, className = '', ...props }: InputProps) => {
   const classes = [
     styles.input,
     error && styles.error,
@@ -38,6 +39,15 @@ const Input = ({ error, className = '', ...props }: InputProps) => {
   ]
     .filter(Boolean)
     .join(' ');
+
+  // If label is provided, wrap in FormGroup for backward compatibility
+  if (label) {
+    return (
+      <FormGroup label={label} htmlFor={props.id} required={props.required}>
+        <input className={classes} {...props} />
+      </FormGroup>
+    );
+  }
 
   return <input className={classes} {...props} />;
 };

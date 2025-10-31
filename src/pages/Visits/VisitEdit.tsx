@@ -17,7 +17,7 @@ const VisitEdit = () => {
   const loadVisit = async (visitId: string) => {
     try {
       setLoading(true);
-      const response = await visitService.getById(visitId);
+      await visitService.getById(visitId);
       // Visit loaded successfully
       // For now, just show a message - full edit functionality can be added later
       setError('Visit editing functionality coming soon. Visit ID: ' + visitId);

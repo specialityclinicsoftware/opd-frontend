@@ -91,13 +91,13 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       </h1>
 
       {error && (
-        <Alert type="error" onClose={() => setError(null)}>
+        <Alert variant="error" onClose={() => setError(null)}>
           {error}
         </Alert>
       )}
 
       {success && (
-        <Alert type="success" onClose={() => setSuccess(null)}>
+        <Alert variant="success" onClose={() => setSuccess(null)}>
           {success}
         </Alert>
       )}

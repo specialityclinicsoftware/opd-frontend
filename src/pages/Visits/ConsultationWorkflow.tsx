@@ -13,7 +13,7 @@ interface PopulatedVisit extends Omit<Visit, 'patientId'> {
 const ConsultationWorkflow = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, isDoctor } = useAuth();
+  const { isDoctor } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

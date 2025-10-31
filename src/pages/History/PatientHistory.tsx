@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { patientService, visitService, medicationService } from '../../services';
-import { Patient, Visit, MedicationHistory } from '../../types';
+import type { Visit, MedicationHistory } from '../../types';
 
 interface TimelineEvent {
   id: string;

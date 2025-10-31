@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
   const location = useLocation();
-  const { user, isDoctor, isNurse, isReceptionist, logout } = useAuth();
+  const { user, isDoctor, isNurse, logout } = useAuth();
 
   const isSuperAdmin = user?.role === 'super_admin';
   const isHospitalAdmin = user?.role === 'hospital_admin';

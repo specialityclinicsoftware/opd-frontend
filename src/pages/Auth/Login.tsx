@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services';
@@ -44,8 +44,9 @@ const Login = () => {
           navigate('/');
         }
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Login failed. Please try again.';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -61,7 +62,7 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.loginForm}>
-          {error && <Alert type="error">{error}</Alert>}
+          {error && <Alert variant="error">{error}</Alert>}
 
           <div className={styles.formGroup}>
             <label htmlFor="email">Email</label>

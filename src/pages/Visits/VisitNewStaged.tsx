@@ -99,7 +99,8 @@ const VisitNewStaged = () => {
       setFormData({
         ...visit,
         visitDate: new Date(visit.visitDate),
-        reviewDate: visit.reviewDate ? new Date(visit.reviewDate) : '',
+        reviewDate: visit.reviewDate ? new Date(visit.reviewDate) : undefined,
+        consultingDoctor: visit.consultingDoctor || '',
       });
       setSelectedPatient(patients.find(p => p._id === visit.patientId) || null);
     } catch (err) {

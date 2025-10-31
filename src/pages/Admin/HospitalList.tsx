@@ -69,7 +69,7 @@ const HospitalList: React.FC = () => {
       </div>
 
       {error && (
-        <Alert type="error" onClose={() => setError(null)}>
+        <Alert variant="error" onClose={() => setError(null)}>
           {error}
         </Alert>
       )}

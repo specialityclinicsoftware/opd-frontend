@@ -88,7 +88,7 @@ const EditUser: React.FC = () => {
   if (!user) {
     return (
       <div style={{ padding: '24px' }}>
-        <Alert type="error">User not found</Alert>
+        <Alert variant="error">User not found</Alert>
       </div>
     );
   }
@@ -111,13 +111,13 @@ const EditUser: React.FC = () => {
       </h1>
 
       {error && (
-        <Alert type="error" onClose={() => setError(null)}>
+        <Alert variant="error" onClose={() => setError(null)}>
           {error}
         </Alert>
       )}
 
       {success && (
-        <Alert type="success" onClose={() => setSuccess(null)}>
+        <Alert variant="success" onClose={() => setSuccess(null)}>
           {success}
         </Alert>
       )}

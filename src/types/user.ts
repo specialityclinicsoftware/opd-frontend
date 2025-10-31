@@ -2,6 +2,7 @@ export type UserRole = 'super_admin' | 'hospital_admin' | 'doctor' | 'nurse' | '
 
 export interface User {
   _id: string;
+  id?: string; // Alias for _id for compatibility
   name: string;
   email: string;
   role: UserRole;

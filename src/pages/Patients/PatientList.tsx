@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientService } from '../../services';
-import type { Patient } from '../../types';
+// Patient type imported for future use
 
 const PatientList = () => {
   const [searchTerm, setSearchTerm] = useState('');

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { patientService } from '../../services';
-import { PatientFormData } from '../../types';
+import type { PatientFormData } from '../../types';
 
 const PatientRegister = () => {
   const navigate = useNavigate();

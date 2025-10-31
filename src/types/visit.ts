@@ -33,8 +33,10 @@ export interface BloodInvestigation {
 
 // Two-Stage Sequential Flow Statuses
 export type VisitStatus =
+  | 'draft'            // Draft visit being created
   | 'pending'          // Initial visit created, awaiting nurse
   | 'with-nurse'       // Nurse is working on pre-consultation
+  | 'pre_consultation_complete' // Pre-consultation complete
   | 'ready-for-doctor' // Nurse completed, awaiting doctor
   | 'with-doctor'      // Doctor is working on consultation
   | 'completed'        // Doctor finalized the visit

@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientService, visitService, medicationService } from '../../services';
-import { Patient, Visit, MedicationHistory } from '../../types';
+// Types for Patient, Visit, MedicationHistory are inferred from API responses
 
 const PatientDetails = () => {
   const { id } = useParams<{ id: string }>();
