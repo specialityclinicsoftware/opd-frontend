@@ -136,4 +136,15 @@ export const visitService = {
       data: visit!,
     };
   },
+
+  // Get recent visits (last 10) for a hospital
+  getRecentVisits: async (hospitalId: string): Promise<ApiResponse<Visit[]>> => {
+    const response = await apiClient.get<{ success: boolean; message?: string; data: Visit[] }>(`/api/hospitals/${hospitalId}/visits/workflow/recent`);
+    // The API returns { success, message, data: [...] } where data is the array directly
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Recent visits fetched successfully',
+      data: response.data.data,
+    };
+  },
 };

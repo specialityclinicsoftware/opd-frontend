@@ -46,6 +46,16 @@ export const patientService = {
     };
   },
 
+  // Search patients by name or phone
+  search: async (query: string): Promise<ApiResponse<Patient[]>> => {
+    const response = await apiClient.get<ApiResponse<BackendPatientListResponse>>(`/api/patients/search?q=${encodeURIComponent(query)}`);
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Search completed',
+      data: response.data.data.patients || [],
+    };
+  },
+
   // Get patient by ID
   getById: async (id: string): Promise<ApiResponse<Patient>> => {
     const response = await apiClient.get<ApiResponse<BackendPatientResponse>>(`/api/patients/${id}`);

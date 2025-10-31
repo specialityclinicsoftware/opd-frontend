@@ -47,7 +47,7 @@ const HospitalList: React.FC = () => {
   const handleToggleStatus = (hospital: Hospital) => {
     if (hospital.isActive) {
       confirm(
-        `Are you sure you want to deactivate ${hospital.name}?`,
+        `Are you sure you want to deactivate ${hospital.hospitalName}?`,
         () => deactivateMutation.mutate(hospital._id),
         'Confirm Deactivation'
       );
@@ -97,8 +97,8 @@ const HospitalList: React.FC = () => {
             <tbody>
               {hospitals?.map((hospital) => (
                 <tr key={hospital._id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  <td style={{ padding: '16px' }}>{hospital.name}</td>
-                  <td style={{ padding: '16px' }}>{hospital.address || '-'}</td>
+                  <td style={{ padding: '16px' }}>{hospital.hospitalName}</td>
+                  <td style={{ padding: '16px' }}>{hospital.city || '-'}</td>
                   <td style={{ padding: '16px' }}>{hospital.phoneNumber}</td>
                   <td style={{ padding: '16px' }}>
                     <span style={{

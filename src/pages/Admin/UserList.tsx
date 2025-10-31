@@ -92,6 +92,27 @@ const UserList: React.FC = () => {
     (user) => filterRole === 'all' || user.role === filterRole
   );
 
+  if (!targetHospitalId) {
+    return (
+      <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: '600', color: '#1e293b', marginBottom: '24px' }}>
+          User Management
+        </h1>
+        <Alert variant="info">
+          Please select a hospital from the Hospitals page to manage its users.
+        </Alert>
+        {currentUser?.role === 'super_admin' && (
+          <Button
+            onClick={() => navigate('/admin/hospitals')}
+            style={{ marginTop: '16px' }}
+          >
+            Go to Hospitals
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   if (isLoading) {
     return <Loading />;
   }

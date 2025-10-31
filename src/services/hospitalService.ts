@@ -3,14 +3,27 @@ import type { User } from './userService';
 
 export interface Hospital {
   _id: string;
-  name: string;
+  hospitalName: string;
   address: string;
+  city: string;
+  state: string;
+  pincode: string;
   phoneNumber: string;
   email: string;
   registrationNumber: string;
+  subscriptionPlan: string;
   isActive: boolean;
+  subscriptionStartDate: string;
   createdAt: string;
   updatedAt: string;
+  __v: number;
+  settings?: {
+    timezone: string;
+    currency: string;
+    dateFormat: string;
+    allowNurseEdit: boolean;
+    requireNursePreConsultation: boolean;
+  };
 }
 
 export interface CreateHospitalInput {
@@ -48,7 +61,7 @@ const hospitalService = {
   // Get all hospitals (super admin only)
   getAllHospitals: async (): Promise<Hospital[]> => {
     const response = await apiClient.get(`/api/admin/hospitals`);
-    return response.data;
+    return response.data.data;
   },
 
   // Get single hospital
@@ -60,7 +73,7 @@ const hospitalService = {
   // Create new hospital with admin (super admin only)
   createHospital: async (data: ICreateHospital): Promise<{ hospital: Hospital; admin: User }> => {
     const response = await apiClient.post(`/api/admin/hospitals`, data);
-    return response.data;
+    return response.data.data;
   },
 
   // Update hospital
@@ -72,13 +85,13 @@ const hospitalService = {
   // Activate hospital
   activateHospital: async (hospitalId: string): Promise<Hospital> => {
     const response = await apiClient.post(`/api/hospitals/${hospitalId}/activate`, {});
-    return response.data;
+    return response.data.data;
   },
 
   // Deactivate hospital
   deactivateHospital: async (hospitalId: string): Promise<Hospital> => {
     const response = await apiClient.post(`/api/hospitals/${hospitalId}/deactivate`, {});
-    return response.data;
+    return response.data.data;
   },
 };
 

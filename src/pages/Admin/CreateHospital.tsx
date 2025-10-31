@@ -10,7 +10,6 @@ import type { AxiosError } from '../../types/api';
 const CreateHospital: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<ICreateHospital>({
    hospital:{ hospitalName: '',
@@ -29,24 +28,18 @@ const CreateHospital: React.FC = () => {
 
   const createMutation = useMutation({
     mutationFn: hospitalService.createHospital,
-    onSuccess: (data) => {
-      setSuccess(`Hospital "${data.hospital.name}" created successfully!`);
-      setError(null);
-      setTimeout(() => {
-        navigate('/admin/hospitals');
-      }, 2000);
+    onSuccess: () => {
+      navigate('/admin/hospitals');
     },
     onError: (err: unknown) => {
       const error = err as AxiosError;
       setError(error.response?.data?.message || 'Failed to create hospital');
-      setSuccess(null);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
 
     // Validation
     if (!formData.hospital.hospitalName || !formData.hospital.email || !formData.hospital.registrationNumber) {
@@ -95,12 +88,6 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       {error && (
         <Alert variant="error" onClose={() => setError(null)}>
           {error}
-        </Alert>
-      )}
-
-      {success && (
-        <Alert variant="success" onClose={() => setSuccess(null)}>
-          {success}
         </Alert>
       )}
 

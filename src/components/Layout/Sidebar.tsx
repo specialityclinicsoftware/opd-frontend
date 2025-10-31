@@ -10,7 +10,6 @@ const Sidebar = () => {
 
   const isSuperAdmin = user?.role === 'super_admin';
   const isHospitalAdmin = user?.role === 'hospital_admin';
-  const isAdmin = isSuperAdmin || isHospitalAdmin;
 
   const menuItems = [
     {
@@ -25,7 +24,8 @@ const Sidebar = () => {
         </svg>
       ),
     },
-    {
+    // Patients (not for super_admin)
+    ...(!isSuperAdmin ? [{
       path: '/patients',
       label: 'Patients',
       icon: (
@@ -36,7 +36,7 @@ const Sidebar = () => {
           <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
       ),
-    },
+    }] : []),
     // Super Admin - Hospital Management
     ...(isSuperAdmin ? [{
       path: '/admin/hospitals',
@@ -48,8 +48,8 @@ const Sidebar = () => {
         </svg>
       ),
     }] : []),
-    // Admin - User Management
-    ...(isAdmin ? [{
+    // Hospital Admin - User Management (only for hospital_admin, not super_admin)
+    ...(isHospitalAdmin ? [{
       path: '/admin/users',
       label: 'User Management',
       icon: (
@@ -63,8 +63,8 @@ const Sidebar = () => {
         </svg>
       ),
     }] : []),
-    // Pending Visits (for both nurses and doctors)
-    ...((isNurse || isDoctor) ? [{
+    // Pending Visits (for hospital admin, nurses and doctors)
+    ...((isHospitalAdmin || isNurse || isDoctor) ? [{
       path: '/visits/pending',
       label: 'Pending Visits',
       icon: (
@@ -74,8 +74,8 @@ const Sidebar = () => {
         </svg>
       ),
     }] : []),
-    // New Visit Workflow
-    ...((isNurse || isDoctor) ? [{
+    // New Visit Workflow (for hospital admin, nurses and doctors)
+    ...((isHospitalAdmin || isNurse || isDoctor) ? [{
       path: '/visits/workflow/new/pre-consultation',
       label: 'New Visit',
       icon: (
@@ -85,8 +85,8 @@ const Sidebar = () => {
         </svg>
       ),
     }] : []),
-
-    {
+    // Prescriptions (only for doctors, not for super_admin)
+    ...(isDoctor ? [{
       path: '/prescriptions/new',
       label: 'Prescriptions',
       icon: (
@@ -96,7 +96,7 @@ const Sidebar = () => {
           <line x1="9" y1="15" x2="15" y2="15" />
         </svg>
       ),
-    },
+    }] : []),
   ];
 
   const handleLogout = () => {

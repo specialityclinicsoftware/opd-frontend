@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientService } from '../../services';
@@ -6,14 +6,29 @@ import { patientService } from '../../services';
 
 const PatientList = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const queryClient = useQueryClient();
 
-  // Fetch patients
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch patients (all or search results)
   const { data: patients = [], isLoading: loading } = useQuery({
-    queryKey: ['patients'],
+    queryKey: ['patients', debouncedSearch],
     queryFn: async () => {
-      const response = await patientService.getAll();
-      return response.data || [];
+      if (debouncedSearch.trim()) {
+        const response = await patientService.search(debouncedSearch);
+        return response.data || [];
+      } else {
+        const response = await patientService.getAll();
+        return response.data || [];
+      }
     },
   });
 
@@ -37,76 +52,139 @@ const PatientList = () => {
     deleteMutation.mutate(id);
   };
 
-  const filteredPatients = patients.filter(patient =>
-    patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.phoneNumber.includes(searchTerm)
-  );
-
   if (loading) {
     return <div style={styles.loading}>Loading patients...</div>;
   }
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>Patient Management</h1>
-        <Link to="/patients/register" style={styles.registerButton}>
-          + Register New Patient
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', margin: 0 }}>Patient Management</h1>
+        <Link to="/patients/register" style={{
+          padding: '0.625rem 1rem',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '6px',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+        }}>
+          + New Patient
         </Link>
       </div>
 
       {/* Search Bar */}
-      <div style={styles.searchSection}>
-        <input
-          type="text"
-          placeholder="Search by name or phone number"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={styles.searchInput}
-        />
+      <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '1.5rem' }}>
+        <div style={{ position: 'relative' }}>
+          <input
+            type="text"
+            placeholder="Search by name or phone number..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.625rem 0.75rem',
+              fontSize: '0.875rem',
+              border: '1px solid #e2e8f0',
+              borderRadius: '6px',
+              outline: 'none',
+              boxSizing: 'border-box',
+            }}
+          />
+          {loading && searchTerm && (
+            <div style={{
+              position: 'absolute',
+              right: '0.75rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: '#3b82f6',
+              fontSize: '0.875rem',
+            }}>
+              Searching...
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Patient List */}
-      <div style={styles.patientGrid}>
-        {filteredPatients.length === 0 ? (
-          <div style={styles.noData}>
+      {/* Patient Table */}
+      <div style={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+        {patients.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
             {searchTerm ? 'No patients found' : 'No patients registered yet'}
           </div>
         ) : (
-          filteredPatients.map((patient) => (
-            <div key={patient._id} style={styles.patientCard}>
-              <div style={styles.cardHeader}>
-                <h3 style={styles.patientName}>{patient.name}</h3>
-                <span style={styles.gender}>{patient.gender}</span>
-              </div>
-              <div style={styles.cardBody}>
-                <div style={styles.infoRow}>
-                  <strong>Age:</strong> {patient.age || 'N/A'}
-                </div>
-                <div style={styles.infoRow}>
-                  <strong>Phone:</strong> {patient.phoneNumber}
-                </div>
-                <div style={styles.infoRow}>
-                  <strong>Address:</strong> {patient.address || 'N/A'}
-                </div>
-                <div style={styles.infoRow}>
-                  <strong>Registered:</strong>{' '}
-                  {new Date(patient.registrationDate).toLocaleDateString()}
-                </div>
-              </div>
-              <div style={styles.cardActions}>
-                <Link to={`/patients/${patient._id}`} style={styles.viewButton}>
-                  View Details
-                </Link>
-                <button
-                  onClick={() => handleDelete(patient._id, patient.name)}
-                  style={styles.deleteButton}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Name</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Age</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Gender</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Phone</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Address</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Registered</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'center', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {patients.map((patient) => (
+                  <tr key={patient._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#1e293b', fontWeight: '500' }}>
+                      {patient.name}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#475569' }}>
+                      {patient.age || 'N/A'}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#475569' }}>
+                      {patient.gender}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#475569' }}>
+                      {patient.phoneNumber}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#475569', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {patient.address || 'N/A'}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#475569' }}>
+                      {new Date(patient.registrationDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                        <Link
+                          to={`/patients/${patient._id}`}
+                          style={{
+                            padding: '0.375rem 0.75rem',
+                            backgroundColor: '#3b82f6',
+                            color: 'white',
+                            textDecoration: 'none',
+                            borderRadius: '4px',
+                            fontSize: '0.8125rem',
+                            fontWeight: '500',
+                          }}
+                        >
+                          View
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(patient._id, patient.name)}
+                          style={{
+                            padding: '0.375rem 0.75rem',
+                            backgroundColor: '#dc2626',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '0.8125rem',
+                            fontWeight: '500',
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
