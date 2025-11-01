@@ -1,5 +1,5 @@
 import apiClient from './api';
-import type { Visit, VisitFormData, ApiResponse } from '../types';
+import type { Visit, VisitFormData, ApiResponse, PopulatedVisit } from '../types';
 
 // Backend response format (actual)
 interface BackendVisitListResponse {
@@ -138,8 +138,8 @@ export const visitService = {
   },
 
   // Get recent visits (last 10) for a hospital
-  getRecentVisits: async (hospitalId: string): Promise<ApiResponse<Visit[]>> => {
-    const response = await apiClient.get<{ success: boolean; message?: string; data: Visit[] }>(`/api/hospitals/${hospitalId}/visits/workflow/recent`);
+  getRecentVisits: async (hospitalId: string): Promise<ApiResponse<PopulatedVisit[]>> => {
+    const response = await apiClient.get<{ success: boolean; message?: string; data: PopulatedVisit[] }>(`/api/hospitals/${hospitalId}/visits/workflow/recent`);
     // The API returns { success, message, data: [...] } where data is the array directly
     return {
       success: response.data.success,

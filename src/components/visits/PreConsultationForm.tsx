@@ -66,42 +66,37 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
   };
 
   return (
-    <div>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
       {/* Vitals Section */}
-      <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-          </svg>
-          Vitals
-        </h2>
-        <div style={styles.formRow}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Pulse (bpm)</label>
+      <div style={styles.compactSection}>
+        <h3 style={styles.compactSectionTitle}>Vitals</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+          <div style={styles.compactFormGroup}>
+            <label style={styles.compactLabel}>Pulse (bpm)</label>
             <input
               type="number"
               name="vitals.pulseRate"
               value={formData.vitals?.pulseRate || ''}
               onChange={handleChange}
               placeholder="72"
-              style={styles.input}
+              style={styles.compactInput}
               disabled={readOnly}
             />
           </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>SpO2 (%)</label>
+          <div style={styles.compactFormGroup}>
+            <label style={styles.compactLabel}>SpO2 (%)</label>
             <input
               type="number"
               name="vitals.spO2"
               value={formData.vitals?.spO2 || ''}
               onChange={handleChange}
               placeholder="98"
-              style={styles.input}
+              style={styles.compactInput}
               disabled={readOnly}
             />
           </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Temp (°F)</label>
+          <div style={styles.compactFormGroup}>
+            <label style={styles.compactLabel}>Temp (°F)</label>
             <input
               type="number"
               step="0.1"
@@ -109,145 +104,82 @@ const PreConsultationForm = ({ formData, onFormDataChange, readOnly = false }: P
               value={formData.vitals?.temperature || ''}
               onChange={handleChange}
               placeholder="98.6"
-              style={styles.input}
+              style={styles.compactInput}
               disabled={readOnly}
             />
           </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>BP Systolic</label>
-            <input
-              type="number"
-              name="vitals.bloodPressure.systolic"
-              value={formData.vitals?.bloodPressure?.systolic || ''}
-              onChange={handleChange}
-              placeholder="120"
-              style={styles.input}
-              disabled={readOnly}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>BP Diastolic</label>
-            <input
-              type="number"
-              name="vitals.bloodPressure.diastolic"
-              value={formData.vitals?.bloodPressure?.diastolic || ''}
-              onChange={handleChange}
-              placeholder="80"
-              style={styles.input}
-              disabled={readOnly}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* History Section */}
-      <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="16" y1="13" x2="8" y2="13" />
-            <line x1="16" y1="17" x2="8" y2="17" />
-            <polyline points="10 9 9 9 8 9" />
-          </svg>
-          History
-        </h2>
-        <div style={styles.formGroup}>
-          <label style={styles.label}>Chief Complaints</label>
-          <textarea
-            name="chiefComplaints"
-            value={formData.chiefComplaints || ''}
-            onChange={handleChange}
-            rows={2}
-            style={styles.textarea}
-            disabled={readOnly}
-          />
-        </div>
-        <div style={styles.formRow}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Past History</label>
-            <textarea
-              name="pastHistory"
-              value={formData.pastHistory || ''}
-              onChange={handleChange}
-              rows={1}
-              style={styles.textarea}
-              disabled={readOnly}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Family History</label>
-            <textarea
-              name="familyHistory"
-              value={formData.familyHistory || ''}
-              onChange={handleChange}
-              rows={1}
-              style={styles.textarea}
-              disabled={readOnly}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Marital History</label>
-            <textarea
-              name="maritalHistory"
-              value={formData.maritalHistory || ''}
-              onChange={handleChange}
-              rows={1}
-              style={styles.textarea}
-              disabled={readOnly}
-            />
+          <div style={styles.compactFormGroup}>
+            <label style={styles.compactLabel}>BP</label>
+            <div style={{ display: 'flex', gap: '0.25rem' }}>
+              <input
+                type="number"
+                name="vitals.bloodPressure.systolic"
+                value={formData.vitals?.bloodPressure?.systolic || ''}
+                onChange={handleChange}
+                placeholder="120"
+                style={styles.compactInput}
+                disabled={readOnly}
+              />
+              <span style={{ alignSelf: 'center', color: '#64748b', fontSize: '0.875rem' }}>/</span>
+              <input
+                type="number"
+                name="vitals.bloodPressure.diastolic"
+                value={formData.vitals?.bloodPressure?.diastolic || ''}
+                onChange={handleChange}
+                placeholder="80"
+                style={styles.compactInput}
+                disabled={readOnly}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* General Examination Section */}
-      <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-          General Examination
-        </h2>
-        <div style={styles.checkboxGroup}>
-          <label style={styles.checkboxLabel}>
+      <div style={styles.compactSection}>
+        <h3 style={styles.compactSectionTitle}>General Examination</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.375rem' }}>
+          <label style={styles.compactCheckboxLabel}>
             <input
               type="checkbox"
               name="generalExamination.pallor"
               checked={formData.generalExamination?.pallor || false}
               onChange={handleChange}
               disabled={readOnly}
+              style={{ marginRight: '0.375rem' }}
             />
             Pallor
           </label>
-          <label style={styles.checkboxLabel}>
+          <label style={styles.compactCheckboxLabel}>
             <input
               type="checkbox"
               name="generalExamination.icterus"
               checked={formData.generalExamination?.icterus || false}
               onChange={handleChange}
               disabled={readOnly}
+              style={{ marginRight: '0.375rem' }}
             />
             Icterus
           </label>
-          <label style={styles.checkboxLabel}>
+          <label style={styles.compactCheckboxLabel}>
             <input
               type="checkbox"
               name="generalExamination.clubbing"
               checked={formData.generalExamination?.clubbing || false}
               onChange={handleChange}
               disabled={readOnly}
+              style={{ marginRight: '0.375rem' }}
             />
             Clubbing
           </label>
-          <label style={styles.checkboxLabel}>
+          <label style={styles.compactCheckboxLabel}>
             <input
               type="checkbox"
               name="generalExamination.cyanosis"
               checked={formData.generalExamination?.cyanosis || false}
               onChange={handleChange}
               disabled={readOnly}
+              style={{ marginRight: '0.375rem' }}
             />
             Cyanosis
           </label>
@@ -454,6 +386,47 @@ const styles = {
     backgroundColor: '#f8fafc',
     borderRadius: '8px',
     border: '1px solid #e2e8f0',
+  },
+  compactSection: {
+    backgroundColor: '#fff',
+    padding: '0.75rem',
+    borderRadius: '8px',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+    border: '1px solid #e2e8f0',
+  },
+  compactSectionTitle: {
+    fontSize: '0.875rem',
+    fontWeight: '600' as const,
+    marginBottom: '0.5rem',
+    color: '#1e293b',
+    letterSpacing: '-0.025em',
+  },
+  compactFormGroup: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.25rem',
+  },
+  compactLabel: {
+    fontSize: '0.75rem',
+    fontWeight: '500' as const,
+    color: '#64748b',
+  },
+  compactInput: {
+    padding: '0.375rem 0.5rem',
+    border: '1px solid #cbd5e0',
+    borderRadius: '6px',
+    fontSize: '0.875rem',
+    backgroundColor: '#fff',
+    transition: 'all 0.2s ease',
+    color: '#1e293b',
+  },
+  compactCheckboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '0.75rem',
+    color: '#475569',
+    cursor: 'pointer',
+    fontWeight: '500' as const,
   },
 };
 

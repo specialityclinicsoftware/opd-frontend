@@ -174,3 +174,14 @@ export interface DoctorQueueItem {
   preConsultationCompletedAt?: Date;
   createdAt: Date;
 }
+
+// Populated Visit type for when patientId is populated
+export interface PopulatedVisit extends Omit<Visit, 'patientId'> {
+  patientId: {
+    _id: string;
+    name: string;
+    phoneNumber: string;
+    age?: number;
+    gender?: string;
+  } | string;
+}
