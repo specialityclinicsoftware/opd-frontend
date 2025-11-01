@@ -37,7 +37,9 @@ export const visitService = {
 
   // Get all visits for a patient
   getByPatient: async (patientId: string): Promise<ApiResponse<Visit[]>> => {
-    const response = await apiClient.get<BackendVisitListResponse>(`/api/visits/patient/${patientId}`);
+    const response = await apiClient.get<BackendVisitListResponse>(
+      `/api/visits/patient/${patientId}`
+    );
     return {
       success: response.data.success,
       message: response.data.message || 'Visits fetched successfully',
@@ -47,7 +49,9 @@ export const visitService = {
 
   // Get latest visit for a patient
   getLatest: async (patientId: string): Promise<ApiResponse<Visit>> => {
-    const response = await apiClient.get<BackendVisitResponse>(`/api/visits/patient/${patientId}/latest`);
+    const response = await apiClient.get<BackendVisitResponse>(
+      `/api/visits/patient/${patientId}/latest`
+    );
     // Handle both response formats: { visit: ... } and { data: { visit: ... } }
     const visit = response.data.data?.visit || response.data.visit;
     return {
@@ -59,7 +63,9 @@ export const visitService = {
 
   // Get complete patient history
   getHistory: async (patientId: string): Promise<ApiResponse<Visit[]>> => {
-    const response = await apiClient.get<BackendVisitListResponse>(`/api/visits/patient/${patientId}/history`);
+    const response = await apiClient.get<BackendVisitListResponse>(
+      `/api/visits/patient/${patientId}/history`
+    );
     return {
       success: response.data.success,
       message: response.data.message || 'History fetched successfully',
@@ -93,7 +99,9 @@ export const visitService = {
 
   // Delete visit
   delete: async (id: string): Promise<ApiResponse<null>> => {
-    const response = await apiClient.delete<{ success: boolean; message?: string }>(`/api/visits/${id}`);
+    const response = await apiClient.delete<{ success: boolean; message?: string }>(
+      `/api/visits/${id}`
+    );
     return {
       success: response.data.success,
       message: response.data.message || 'Visit deleted successfully',
@@ -115,8 +123,14 @@ export const visitService = {
   },
 
   // Workflow API: Submit pre-consultation data
-  submitPreConsultation: async (visitId: string, preConsultationData: Partial<VisitFormData>): Promise<ApiResponse<Visit>> => {
-    const response = await apiClient.post<BackendVisitResponse>(`/api/visits/workflow/${visitId}/pre-consultation`, preConsultationData);
+  submitPreConsultation: async (
+    visitId: string,
+    preConsultationData: Partial<VisitFormData>
+  ): Promise<ApiResponse<Visit>> => {
+    const response = await apiClient.post<BackendVisitResponse>(
+      `/api/visits/workflow/${visitId}/pre-consultation`,
+      preConsultationData
+    );
     // Handle both response formats: { visit: ... } and { data: { visit: ... } }
     const visit = response.data.data?.visit || response.data.visit;
     return {
@@ -127,8 +141,14 @@ export const visitService = {
   },
 
   // Workflow API: Submit consultation (diagnosis) data
-  submitConsultation: async (visitId: string, consultationData: Partial<VisitFormData>): Promise<ApiResponse<Visit>> => {
-    const response = await apiClient.post<BackendVisitResponse>(`/api/visits/workflow/${visitId}/consultation`, consultationData);
+  submitConsultation: async (
+    visitId: string,
+    consultationData: Partial<VisitFormData>
+  ): Promise<ApiResponse<Visit>> => {
+    const response = await apiClient.post<BackendVisitResponse>(
+      `/api/visits/workflow/${visitId}/consultation`,
+      consultationData
+    );
     // Handle both response formats: { visit: ... } and { data: { visit: ... } }
     const visit = response.data.data?.visit || response.data.visit;
     return {
@@ -140,7 +160,11 @@ export const visitService = {
 
   // Get recent visits (last 10) for a hospital
   getRecentVisits: async (hospitalId: string): Promise<ApiResponse<PopulatedVisit[]>> => {
-    const response = await apiClient.get<{ success: boolean; message?: string; data: PopulatedVisit[] }>(`/api/hospitals/${hospitalId}/visits/workflow/recent`);
+    const response = await apiClient.get<{
+      success: boolean;
+      message?: string;
+      data: PopulatedVisit[];
+    }>(`/api/hospitals/${hospitalId}/visits/workflow/recent`);
     // The API returns { success, message, data: [...] } where data is the array directly
     return {
       success: response.data.success,

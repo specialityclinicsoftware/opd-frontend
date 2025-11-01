@@ -97,8 +97,17 @@ const ConsultationWorkflow = () => {
         reviewDate: formData.reviewDate,
       });
 
-      alert('Consultation completed successfully!');
-      navigate('/visits/pending');
+      // Get patient ID and doctor name from visit data
+      const patientId =
+        typeof visit?.patientId === 'string' ? visit.patientId : visit?.patientId?._id;
+      const doctorName = formData.consultingDoctor || visit?.consultingDoctor || '';
+
+      // Redirect to prescription page with patient and doctor pre-selected
+      const params = new URLSearchParams();
+      if (patientId) params.append('patientId', patientId);
+      if (doctorName) params.append('doctor', doctorName);
+
+      navigate(`/prescriptions/new?${params.toString()}`);
     } catch (err: unknown) {
       const error = err as AxiosError;
       setError(error.response?.data?.message || 'Failed to complete consultation');
