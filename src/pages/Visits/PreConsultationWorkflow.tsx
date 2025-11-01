@@ -118,6 +118,50 @@ const PreConsultationWorkflow = () => {
     setFormData({ ...formData, patientId });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    // Shift+Enter submits the form
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      if (submitButton) {
+        submitButton.click();
+      }
+      return;
+    }
+
+    // Enter moves to next field (except for textareas where Enter adds new line)
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const target = e.target as HTMLElement;
+
+      // Allow Enter in textareas for new lines
+      if (target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      e.preventDefault();
+
+      // Get all focusable elements (excluding checkboxes and buttons)
+      const form = e.currentTarget;
+      const focusableElements = Array.from(
+        form.querySelectorAll<HTMLElement>(
+          'input[type="text"]:not([disabled]), input[type="number"]:not([disabled]), input[type="date"]:not([disabled]), input[type="time"]:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+        )
+      );
+
+      const currentIndex = focusableElements.indexOf(target);
+      const nextElement = focusableElements[currentIndex + 1];
+
+      if (nextElement) {
+        nextElement.focus();
+        // If it's an input or textarea, select the content
+        if (nextElement.tagName === 'INPUT' || nextElement.tagName === 'TEXTAREA') {
+          (nextElement as HTMLInputElement | HTMLTextAreaElement).select();
+        }
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -177,7 +221,7 @@ const PreConsultationWorkflow = () => {
 
   return (
     <div style={styles.container}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
         {error && <div style={styles.error}>{error}</div>}
 
         {/* Compact Header */}
