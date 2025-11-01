@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import userService, { type User } from '../../services/userService';
+import userService from '../../services/userService';
+import type { User } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Loading from '../../components/ui/Loading';

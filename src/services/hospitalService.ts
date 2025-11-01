@@ -1,5 +1,5 @@
 import apiClient from './api';
-import type { User } from './userService';
+import type { User } from '../types';
 
 export interface Hospital {
   _id: string;

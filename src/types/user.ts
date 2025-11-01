@@ -15,9 +15,11 @@ export interface User {
   email: string;
   role: UserRoleType;
   hospitalId: string;
+  phoneNumber?: string;
   specialization?: string;
   licenseNumber?: string;
-  active: boolean;
+  isActive: boolean;
+  lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
