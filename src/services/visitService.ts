@@ -4,13 +4,11 @@ import type { Visit, VisitFormData, ApiResponse, PopulatedVisit } from '../types
 // Backend response format (actual)
 interface BackendVisitListResponse {
   success: boolean;
-  count?: number;
-  visits?: Visit[];
-  data?: {
-    count?: number;
-    visits?: Visit[];
+  data: {
+    count: number;
+    visits: Visit[];
   };
-  message?: string;
+  message: string;
 }
 
 interface BackendVisitResponse {
@@ -36,15 +34,11 @@ export const visitService = {
   },
 
   // Get all visits for a patient
-  getByPatient: async (patientId: string): Promise<ApiResponse<Visit[]>> => {
+  getByPatient: async (patientId: string): Promise<Visit[]> => {
     const response = await apiClient.get<BackendVisitListResponse>(
       `/api/visits/patient/${patientId}`
     );
-    return {
-      success: response.data.success,
-      message: response.data.message || 'Visits fetched successfully',
-      data: response.data.visits || [],
-    };
+    return response.data.data.visits;
   },
 
   // Get latest visit for a patient
@@ -69,7 +63,7 @@ export const visitService = {
     return {
       success: response.data.success,
       message: response.data.message || 'History fetched successfully',
-      data: response.data.visits || [],
+      data: response.data.data?.visits || [],
     };
   },
 

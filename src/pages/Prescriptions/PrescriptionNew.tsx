@@ -50,6 +50,7 @@ const PrescriptionNew = () => {
   useEffect(() => {
     loadPatients();
     loadDoctors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -75,7 +76,7 @@ const PrescriptionNew = () => {
   const loadVisits = async (patientId: string) => {
     try {
       const response = await visitService.getByPatient(patientId);
-      setVisits(Array.isArray(response.data) ? response.data : []);
+      setVisits(Array.isArray(response) ? response : []);
     } catch (err) {
       console.error('Load visits error:', err);
       setVisits([]);
@@ -165,7 +166,11 @@ const PrescriptionNew = () => {
     });
   };
 
-  const updateMedicationTiming = (index: number, field: keyof Medication['timing'], checked: boolean) => {
+  const updateMedicationTiming = (
+    index: number,
+    field: keyof Medication['timing'],
+    checked: boolean
+  ) => {
     setFormData(prev => {
       const meds = [...prev.medications];
       meds[index] = {
@@ -176,7 +181,11 @@ const PrescriptionNew = () => {
     });
   };
 
-  const updateMedicationMeal = (index: number, field: keyof Medication['meal'], checked: boolean) => {
+  const updateMedicationMeal = (
+    index: number,
+    field: keyof Medication['meal'],
+    checked: boolean
+  ) => {
     setFormData(prev => {
       const meds = [...prev.medications];
       meds[index] = {
@@ -262,11 +271,30 @@ const PrescriptionNew = () => {
                   disabled={!formData.patientId}
                 >
                   <option value="">Select Visit</option>
-                  {visits.map(visit => (
-                    <option key={visit._id} value={visit._id}>
-                      {new Date(visit.visitDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </option>
-                  ))}
+                  {visits.map(visit => {
+                    const date = new Date(visit.visitDate).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    });
+                    const diagnosis = visit.diagnosis
+                      ? ` - ${visit.diagnosis.substring(0, 30)}${visit.diagnosis.length > 30 ? '...' : ''}`
+                      : '';
+                    const complaints =
+                      !visit.diagnosis && visit.chiefComplaints
+                        ? ` - ${visit.chiefComplaints.substring(0, 30)}${visit.chiefComplaints.length > 30 ? '...' : ''}`
+                        : '';
+                    const statusLabel = visit.status === 'completed' ? '' : ` (${visit.status})`;
+
+                    return (
+                      <option key={visit._id} value={visit._id}>
+                        {date}
+                        {diagnosis}
+                        {complaints}
+                        {statusLabel}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
@@ -294,8 +322,14 @@ const PrescriptionNew = () => {
                 <input
                   type="date"
                   name="prescribedDate"
-                  value={formData.prescribedDate instanceof Date ? formData.prescribedDate.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, prescribedDate: new Date(e.target.value) }))}
+                  value={
+                    formData.prescribedDate instanceof Date
+                      ? formData.prescribedDate.toISOString().split('T')[0]
+                      : ''
+                  }
+                  onChange={e =>
+                    setFormData(prev => ({ ...prev, prescribedDate: new Date(e.target.value) }))
+                  }
                   style={styles.compactInput}
                 />
               </div>
@@ -307,7 +341,14 @@ const PrescriptionNew = () => {
             <div style={styles.infoRow}>
               {selectedPatient && (
                 <div style={styles.patientBadge}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
@@ -320,7 +361,14 @@ const PrescriptionNew = () => {
               )}
               {formData.diagnosis && (
                 <div style={styles.diagnosisBadge}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                   </svg>
@@ -347,7 +395,14 @@ const PrescriptionNew = () => {
         <div style={styles.medicationsSection}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.medicationsTitle}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <path d="M9 3v18M15 3v18M3 9h18M3 15h18" />
               </svg>
@@ -362,11 +417,11 @@ const PrescriptionNew = () => {
             <table style={styles.table}>
               <thead>
                 <tr style={styles.tableHeaderRow}>
-                  <th style={{...styles.tableHeader, width: '50px'}}>  #</th>
-                  <th style={{...styles.tableHeader, minWidth: '280px'}}>Medicine Name *</th>
-                  <th style={{...styles.tableHeader, width: '150px'}}>Dosage</th>
-                  <th style={{...styles.tableHeader, width: '120px'}}>Days</th>
-                  <th style={{...styles.tableHeader, minWidth: '180px'}}>
+                  <th style={{ ...styles.tableHeader, width: '50px' }}> #</th>
+                  <th style={{ ...styles.tableHeader, minWidth: '280px' }}>Medicine Name *</th>
+                  <th style={{ ...styles.tableHeader, width: '150px' }}>Dosage</th>
+                  <th style={{ ...styles.tableHeader, width: '120px' }}>Days</th>
+                  <th style={{ ...styles.tableHeader, minWidth: '180px' }}>
                     Timing
                     <div style={styles.timingSubHeader}>
                       <span>M</span>
@@ -375,14 +430,14 @@ const PrescriptionNew = () => {
                       <span>N</span>
                     </div>
                   </th>
-                  <th style={{...styles.tableHeader, minWidth: '160px'}}>
+                  <th style={{ ...styles.tableHeader, minWidth: '160px' }}>
                     Meal
                     <div style={styles.timingSubHeader}>
                       <span>Before</span>
                       <span>After</span>
                     </div>
                   </th>
-                  <th style={{...styles.tableHeader, width: '70px'}}>Action</th>
+                  <th style={{ ...styles.tableHeader, width: '70px' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -393,7 +448,7 @@ const PrescriptionNew = () => {
                       <input
                         type="text"
                         value={med.medicineName}
-                        onChange={(e) => updateMedication(index, 'medicineName', e.target.value)}
+                        onChange={e => updateMedication(index, 'medicineName', e.target.value)}
                         placeholder="Medicine name"
                         style={styles.tableInput}
                         required
@@ -403,7 +458,7 @@ const PrescriptionNew = () => {
                       <input
                         type="text"
                         value={med.dosage}
-                        onChange={(e) => updateMedication(index, 'dosage', e.target.value)}
+                        onChange={e => updateMedication(index, 'dosage', e.target.value)}
                         placeholder="500mg"
                         style={styles.tableInput}
                       />
@@ -412,7 +467,9 @@ const PrescriptionNew = () => {
                       <input
                         type="number"
                         value={med.days}
-                        onChange={(e) => updateMedication(index, 'days', parseInt(e.target.value) || 1)}
+                        onChange={e =>
+                          updateMedication(index, 'days', parseInt(e.target.value) || 1)
+                        }
                         placeholder="7"
                         style={styles.tableInput}
                         min="1"
@@ -424,7 +481,9 @@ const PrescriptionNew = () => {
                           <input
                             type="checkbox"
                             checked={med.timing.morning}
-                            onChange={(e) => updateMedicationTiming(index, 'morning', e.target.checked)}
+                            onChange={e =>
+                              updateMedicationTiming(index, 'morning', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>M</span>
@@ -433,7 +492,9 @@ const PrescriptionNew = () => {
                           <input
                             type="checkbox"
                             checked={med.timing.afternoon}
-                            onChange={(e) => updateMedicationTiming(index, 'afternoon', e.target.checked)}
+                            onChange={e =>
+                              updateMedicationTiming(index, 'afternoon', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>A</span>
@@ -442,7 +503,9 @@ const PrescriptionNew = () => {
                           <input
                             type="checkbox"
                             checked={med.timing.evening}
-                            onChange={(e) => updateMedicationTiming(index, 'evening', e.target.checked)}
+                            onChange={e =>
+                              updateMedicationTiming(index, 'evening', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>E</span>
@@ -451,7 +514,7 @@ const PrescriptionNew = () => {
                           <input
                             type="checkbox"
                             checked={med.timing.night}
-                            onChange={(e) => updateMedicationTiming(index, 'night', e.target.checked)}
+                            onChange={e => updateMedicationTiming(index, 'night', e.target.checked)}
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>N</span>
@@ -464,7 +527,9 @@ const PrescriptionNew = () => {
                           <input
                             type="checkbox"
                             checked={med.meal.beforeMeal}
-                            onChange={(e) => updateMedicationMeal(index, 'beforeMeal', e.target.checked)}
+                            onChange={e =>
+                              updateMedicationMeal(index, 'beforeMeal', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>Before</span>
@@ -473,7 +538,9 @@ const PrescriptionNew = () => {
                           <input
                             type="checkbox"
                             checked={med.meal.afterMeal}
-                            onChange={(e) => updateMedicationMeal(index, 'afterMeal', e.target.checked)}
+                            onChange={e =>
+                              updateMedicationMeal(index, 'afterMeal', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>After</span>
@@ -526,11 +593,7 @@ const PrescriptionNew = () => {
           >
             {loading ? 'Creating Prescription...' : 'Create Prescription'}
           </button>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            style={styles.cancelButton}
-          >
+          <button type="button" onClick={() => navigate(-1)} style={styles.cancelButton}>
             Cancel
           </button>
         </div>

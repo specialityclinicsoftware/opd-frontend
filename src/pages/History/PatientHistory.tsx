@@ -32,7 +32,10 @@ const PatientHistory = () => {
         medicationService.getByPatient(patientId!),
       ]);
 
-      const visits = Array.isArray(visitsRes.data) ? visitsRes.data : [];
+      console.log('Visits Res:', visitsRes);
+      console.log('Medications Res:', medsRes);
+
+      const visits = Array.isArray(visitsRes) ? visitsRes : [];
       const medications = Array.isArray(medsRes.data) ? medsRes.data : [];
 
       const events: TimelineEvent[] = [
@@ -43,7 +46,7 @@ const PatientHistory = () => {
           data: v,
         })),
         ...medications.map(m => ({
-          id: m._id,
+          id: m._id || '',
           date: new Date(m.prescribedDate),
           type: 'prescription' as const,
           data: m,
@@ -179,8 +182,7 @@ const VisitEvent = ({ visit }: { visit: Visit }) => (
       )}
       {visit.reviewDate && (
         <div style={styles.eventSection}>
-          <strong>Review Date:</strong>{' '}
-          {new Date(visit.reviewDate).toLocaleDateString()}
+          <strong>Review Date:</strong> {new Date(visit.reviewDate).toLocaleDateString()}
         </div>
       )}
     </div>
@@ -202,23 +204,41 @@ const PrescriptionEvent = ({ prescription }: { prescription: MedicationHistory }
       <div style={styles.eventSection}>
         <strong>Medications:</strong>
         <div style={styles.medicationList}>
-          {prescription.medications.map((med, idx) => (
-            <div key={idx} style={styles.medicationItem}>
-              <div style={styles.medicineName}>{med.medicineName}</div>
-              <div style={styles.medicineDetails}>
-                {med.dosage && <span>{med.dosage}</span>}
-                {med.frequency && <span>{med.frequency}</span>}
-                {med.duration && <span>{med.duration}</span>}
-                {med.route && <span>{med.route}</span>}
+          {prescription.medications.map((med, idx) => {
+            // Build timing display (M-A-E-N)
+            const timingParts = [];
+            if (med.timing.morning) timingParts.push('Morning');
+            if (med.timing.afternoon) timingParts.push('Afternoon');
+            if (med.timing.evening) timingParts.push('Evening');
+            if (med.timing.night) timingParts.push('Night');
+            const timingDisplay = timingParts.join(' - ');
+
+            // Build meal display
+            const mealParts = [];
+            if (med.meal.beforeMeal) mealParts.push('Before Meal');
+            if (med.meal.afterMeal) mealParts.push('After Meal');
+            const mealDisplay = mealParts.join(' / ');
+
+            return (
+              <div key={idx} style={styles.medicationItem}>
+                <div style={styles.medicineName}>{med.medicineName}</div>
+                <div style={styles.medicineDetails}>
+                  {med.dosage && <span>{med.dosage}</span>}
+                  {med.days && <span>{med.days} days</span>}
+                </div>
+                {timingDisplay && (
+                  <div style={styles.medicineInstructions}>
+                    <strong>Timing:</strong> {timingDisplay}
+                  </div>
+                )}
+                {mealDisplay && (
+                  <div style={styles.medicineInstructions}>
+                    <strong>Meal:</strong> {mealDisplay}
+                  </div>
+                )}
               </div>
-              {med.timing && (
-                <div style={styles.medicineInstructions}>Timing: {med.timing}</div>
-              )}
-              {med.instructions && (
-                <div style={styles.medicineInstructions}>{med.instructions}</div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       {prescription.notes && (
