@@ -6,6 +6,9 @@ export interface Vitals {
   };
   spO2?: number;
   temperature?: number;
+  respiratoryRate?: number;
+  weight?: number;
+  height?: number;
 }
 
 export interface GeneralExamination {
@@ -14,6 +17,7 @@ export interface GeneralExamination {
   clubbing?: boolean;
   cyanosis?: boolean;
   lymphadenopathy?: boolean;
+  edema?: boolean;
 }
 
 export interface SystemicExamination {

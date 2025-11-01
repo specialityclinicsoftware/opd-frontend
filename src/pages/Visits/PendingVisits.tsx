@@ -11,19 +11,27 @@ interface PopulatedVisit extends Omit<Visit, 'patientId'> {
 
 const PendingVisits = () => {
   const navigate = useNavigate();
-  const { isDoctor } = useAuth();
+  const { isDoctor, user } = useAuth();
   const [pendingVisits, setPendingVisits] = useState<PopulatedVisit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadPendingVisits();
-  }, []);
+    if (user?.hospitalId) {
+      loadPendingVisits();
+    }
+  }, [user?.hospitalId]);
 
   const loadPendingVisits = async () => {
+    if (!user?.hospitalId) {
+      setError('Hospital ID not found');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await visitService.getPendingVisits();
+      const response = await visitService.getPendingVisits(user.hospitalId);
       setPendingVisits(response.data as PopulatedVisit[]);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
