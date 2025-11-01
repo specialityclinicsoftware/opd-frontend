@@ -1,27 +1,14 @@
 import apiClient from './api';
 
-export type UserRole = 'super_admin' | 'hospital_admin' | 'doctor' | 'nurse' | 'receptionist';
+import type { User } from '../types';
 
-export interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  hospitalId?: string;
-  phoneNumber?: string;
-  specialization?: string;
-  licenseNumber?: string;
-  isActive: boolean;
-  lastLogin?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { UserRoleType } from '../types';
 
 export interface CreateUserInput {
   name: string;
   email: string;
   password: string;
-  role: UserRole;
+  role: UserRoleType;
   phoneNumber?: string;
   specialization?: string;
   licenseNumber?: string;
@@ -33,7 +20,7 @@ export interface UpdateUserInput {
   phoneNumber?: string;
   specialization?: string;
   licenseNumber?: string;
-  role?: UserRole;
+  role?: UserRoleType;
 }
 
 const userService = {

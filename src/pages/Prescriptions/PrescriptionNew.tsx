@@ -1,41 +1,47 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { medicationService, patientService, visitService } from '../../services';
-import type { Patient, Visit, Medication, MedicationFormData } from '../../types';
+import { userService } from '../../services';
+import { useAuth } from '../../context/AuthContext';
+import type { Patient, Visit, Medication, PrescriptionFormData, User } from '../../types';
 
 const PrescriptionNew = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const preselectedPatientId = searchParams.get('patientId');
   const preselectedDoctor = searchParams.get('doctor');
 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [visits, setVisits] = useState<Visit[]>([]);
+  const [doctors, setDoctors] = useState<User[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const [formData, setFormData] = useState<MedicationFormData>({
+  const [formData, setFormData] = useState<PrescriptionFormData>({
+    hospitalId: user?.hospitalId || '',
     patientId: preselectedPatientId || '',
     visitId: '',
     prescribedDate: new Date(),
-    consultingDoctor: preselectedDoctor || '',
+    doctorId: user?._id || '',
+    consultingDoctor: preselectedDoctor || user?.name || '',
     diagnosis: '',
     medications: [
       {
         medicineName: '',
         dosage: '',
-        frequency: 'OD',
-        duration: '',
-        route: 'Oral',
-        instructions: '',
-        timing: '',
-        morning: false,
-        afternoon: false,
-        evening: false,
-        dinner: false,
-        beforeMeal: false,
-        afterMeal: false,
+        days: 1,
+        timing: {
+          morning: false,
+          afternoon: false,
+          evening: false,
+          night: false,
+        },
+        meal: {
+          beforeMeal: false,
+          afterMeal: false,
+        },
       },
     ],
     notes: '',
@@ -43,6 +49,8 @@ const PrescriptionNew = () => {
 
   useEffect(() => {
     loadPatients();
+    loadDoctors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -68,10 +76,20 @@ const PrescriptionNew = () => {
   const loadVisits = async (patientId: string) => {
     try {
       const response = await visitService.getByPatient(patientId);
-      setVisits(Array.isArray(response.data) ? response.data : []);
+      setVisits(Array.isArray(response) ? response : []);
     } catch (err) {
       console.error('Load visits error:', err);
       setVisits([]);
+    }
+  };
+
+  const loadDoctors = async () => {
+    if (!user?.hospitalId) return;
+    try {
+      const doctors = await userService.getHospitalDoctors(user.hospitalId);
+      setDoctors(Array.isArray(doctors) ? doctors : []);
+    } catch (err) {
+      console.error('Load doctors error:', err);
     }
   };
 
@@ -79,7 +97,7 @@ const PrescriptionNew = () => {
     const patientId = e.target.value;
     const patient = patients.find(p => p._id === patientId);
     setSelectedPatient(patient || null);
-    setFormData({ ...formData, patientId, visitId: '' });
+    setFormData(prev => ({ ...prev, patientId, visitId: '' }));
     if (patientId) {
       await loadVisits(patientId);
     } else {
@@ -91,85 +109,147 @@ const PrescriptionNew = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleDoctorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const doctorId = e.target.value;
+    const doctor = doctors.find(d => d._id === doctorId);
+    setFormData(prev => ({
+      ...prev,
+      doctorId,
+      consultingDoctor: doctor?.name || '',
+    }));
   };
 
   const addMedication = () => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       medications: [
-        ...formData.medications,
+        ...prev.medications,
         {
           medicineName: '',
           dosage: '',
-          frequency: 'OD',
-          duration: '',
-          route: 'Oral',
-          instructions: '',
-          timing: '',
-          morning: false,
-          afternoon: false,
-          evening: false,
-          dinner: false,
-          beforeMeal: false,
-          afterMeal: false,
+          days: 1,
+          timing: {
+            morning: false,
+            afternoon: false,
+            evening: false,
+            night: false,
+          },
+          meal: {
+            beforeMeal: false,
+            afterMeal: false,
+          },
         },
       ],
-    });
+    }));
   };
 
   const removeMedication = (index: number) => {
-    if (formData.medications.length === 1) {
-      alert('At least one medication is required');
-      return;
+    setFormData(prev => {
+      if (prev.medications.length === 1) {
+        alert('At least one medication is required');
+        return prev;
+      }
+      const meds = [...prev.medications];
+      meds.splice(index, 1);
+      return { ...prev, medications: meds };
+    });
+  };
+
+  const updateMedication = (index: number, field: keyof Medication, value: string | number) => {
+    setFormData(prev => {
+      const meds = [...prev.medications];
+      meds[index] = { ...meds[index], [field]: value };
+      return { ...prev, medications: meds };
+    });
+  };
+
+  const updateMedicationTiming = (
+    index: number,
+    field: keyof Medication['timing'],
+    checked: boolean
+  ) => {
+    setFormData(prev => {
+      const meds = [...prev.medications];
+      meds[index] = {
+        ...meds[index],
+        timing: { ...meds[index].timing, [field]: checked },
+      };
+      return { ...prev, medications: meds };
+    });
+  };
+
+  const updateMedicationMeal = (
+    index: number,
+    field: keyof Medication['meal'],
+    checked: boolean
+  ) => {
+    setFormData(prev => {
+      const meds = [...prev.medications];
+      meds[index] = {
+        ...meds[index],
+        meal: { ...meds[index].meal, [field]: checked },
+      };
+      return { ...prev, medications: meds };
+    });
+  };
+
+  const validateForm = () => {
+    if (!formData.patientId) {
+      setError('Please select a patient');
+      return false;
     }
-    const meds = [...formData.medications];
-    meds.splice(index, 1);
-    setFormData({ ...formData, medications: meds });
-  };
-
-  const updateMedication = (index: number, field: keyof Medication, value: string) => {
-    const meds = [...formData.medications];
-    meds[index] = { ...meds[index], [field]: value };
-    setFormData({ ...formData, medications: meds });
-  };
-
-  const updateMedicationCheckbox = (index: number, field: keyof Medication, checked: boolean) => {
-    const meds = [...formData.medications];
-    meds[index] = { ...meds[index], [field]: checked };
-    setFormData({ ...formData, medications: meds });
+    if (!formData.visitId) {
+      setError('Please select a visit');
+      return false;
+    }
+    if (!formData.consultingDoctor.trim()) {
+      setError('Consulting doctor name is required');
+      return false;
+    }
+    if (formData.medications.some(m => !m.medicineName.trim())) {
+      setError('All medications must have a medicine name');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!formData.patientId) {
-      setError('Please select a patient');
-      return;
-    }
-    if (!formData.visitId) {
-      setError('Please select a visit');
-      return;
-    }
-    if (!formData.consultingDoctor.trim()) {
-      setError('Consulting doctor name is required');
-      return;
-    }
-    if (formData.medications.some(m => !m.medicineName.trim())) {
-      setError('All medications must have a medicine name');
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
       await medicationService.create(formData);
-      alert('Prescription created successfully!');
+      alert('Prescription saved successfully!');
       navigate(`/patients/${formData.patientId}`);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(error.response?.data?.message || 'Failed to create prescription');
       console.error('Create prescription error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBilling = async () => {
+    setError('');
+
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+      await medicationService.createWithBilling(formData);
+      alert('Prescription saved and billed successfully! Inventory updated.');
+      navigate(`/patients/${formData.patientId}`);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to process billing');
+      console.error('Billing error:', err);
     } finally {
       setLoading(false);
     }
@@ -215,26 +295,49 @@ const PrescriptionNew = () => {
                   disabled={!formData.patientId}
                 >
                   <option value="">Select Visit</option>
-                  {visits.map(visit => (
-                    <option key={visit._id} value={visit._id}>
-                      {new Date(visit.visitDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </option>
-                  ))}
+                  {visits.map(visit => {
+                    const date = new Date(visit.visitDate).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    });
+                    const diagnosis = visit.diagnosis
+                      ? ` - ${visit.diagnosis.substring(0, 30)}${visit.diagnosis.length > 30 ? '...' : ''}`
+                      : '';
+                    const complaints =
+                      !visit.diagnosis && visit.chiefComplaints
+                        ? ` - ${visit.chiefComplaints.substring(0, 30)}${visit.chiefComplaints.length > 30 ? '...' : ''}`
+                        : '';
+                    const statusLabel = visit.status === 'completed' ? '' : ` (${visit.status})`;
+
+                    return (
+                      <option key={visit._id} value={visit._id}>
+                        {date}
+                        {diagnosis}
+                        {complaints}
+                        {statusLabel}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
-              {/* Doctor Input */}
+              {/* Doctor Dropdown */}
               <div style={styles.compactField}>
                 <label style={styles.compactLabel}>Doctor *</label>
-                <input
-                  type="text"
-                  name="consultingDoctor"
-                  value={formData.consultingDoctor}
-                  onChange={handleChange}
-                  placeholder="Dr. Name"
-                  style={styles.compactInput}
+                <select
+                  value={formData.doctorId}
+                  onChange={handleDoctorChange}
+                  style={styles.compactSelect}
                   required
-                />
+                >
+                  <option value="">Select Doctor</option>
+                  {doctors.map(doctor => (
+                    <option key={doctor._id} value={doctor._id}>
+                      {doctor.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Date Input */}
@@ -243,8 +346,14 @@ const PrescriptionNew = () => {
                 <input
                   type="date"
                   name="prescribedDate"
-                  value={formData.prescribedDate instanceof Date ? formData.prescribedDate.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setFormData({ ...formData, prescribedDate: new Date(e.target.value) })}
+                  value={
+                    formData.prescribedDate instanceof Date
+                      ? formData.prescribedDate.toISOString().split('T')[0]
+                      : ''
+                  }
+                  onChange={e =>
+                    setFormData(prev => ({ ...prev, prescribedDate: new Date(e.target.value) }))
+                  }
                   style={styles.compactInput}
                 />
               </div>
@@ -256,7 +365,14 @@ const PrescriptionNew = () => {
             <div style={styles.infoRow}>
               {selectedPatient && (
                 <div style={styles.patientBadge}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
@@ -269,7 +385,14 @@ const PrescriptionNew = () => {
               )}
               {formData.diagnosis && (
                 <div style={styles.diagnosisBadge}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                   </svg>
@@ -296,7 +419,14 @@ const PrescriptionNew = () => {
         <div style={styles.medicationsSection}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.medicationsTitle}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <path d="M9 3v18M15 3v18M3 9h18M3 15h18" />
               </svg>
@@ -311,11 +441,11 @@ const PrescriptionNew = () => {
             <table style={styles.table}>
               <thead>
                 <tr style={styles.tableHeaderRow}>
-                  <th style={{...styles.tableHeader, width: '50px'}}>  #</th>
-                  <th style={{...styles.tableHeader, minWidth: '280px'}}>Medicine Name *</th>
-                  <th style={{...styles.tableHeader, width: '150px'}}>Dosage</th>
-                  <th style={{...styles.tableHeader, width: '120px'}}>Days</th>
-                  <th style={{...styles.tableHeader, minWidth: '180px'}}>
+                  <th style={{ ...styles.tableHeader, width: '50px' }}> #</th>
+                  <th style={{ ...styles.tableHeader, minWidth: '280px' }}>Medicine Name *</th>
+                  <th style={{ ...styles.tableHeader, width: '150px' }}>Dosage</th>
+                  <th style={{ ...styles.tableHeader, width: '120px' }}>Days</th>
+                  <th style={{ ...styles.tableHeader, minWidth: '180px' }}>
                     Timing
                     <div style={styles.timingSubHeader}>
                       <span>M</span>
@@ -324,14 +454,14 @@ const PrescriptionNew = () => {
                       <span>N</span>
                     </div>
                   </th>
-                  <th style={{...styles.tableHeader, minWidth: '160px'}}>
+                  <th style={{ ...styles.tableHeader, minWidth: '160px' }}>
                     Meal
                     <div style={styles.timingSubHeader}>
                       <span>Before</span>
                       <span>After</span>
                     </div>
                   </th>
-                  <th style={{...styles.tableHeader, width: '70px'}}>Action</th>
+                  <th style={{ ...styles.tableHeader, width: '70px' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -342,7 +472,7 @@ const PrescriptionNew = () => {
                       <input
                         type="text"
                         value={med.medicineName}
-                        onChange={(e) => updateMedication(index, 'medicineName', e.target.value)}
+                        onChange={e => updateMedication(index, 'medicineName', e.target.value)}
                         placeholder="Medicine name"
                         style={styles.tableInput}
                         required
@@ -352,7 +482,7 @@ const PrescriptionNew = () => {
                       <input
                         type="text"
                         value={med.dosage}
-                        onChange={(e) => updateMedication(index, 'dosage', e.target.value)}
+                        onChange={e => updateMedication(index, 'dosage', e.target.value)}
                         placeholder="500mg"
                         style={styles.tableInput}
                       />
@@ -360,10 +490,13 @@ const PrescriptionNew = () => {
                     <td style={styles.tableCell}>
                       <input
                         type="number"
-                        value={med.duration}
-                        onChange={(e) => updateMedication(index, 'duration', e.target.value)}
+                        value={med.days}
+                        onChange={e =>
+                          updateMedication(index, 'days', parseInt(e.target.value) || 1)
+                        }
                         placeholder="7"
                         style={styles.tableInput}
+                        min="1"
                       />
                     </td>
                     <td style={styles.tableCell}>
@@ -371,8 +504,10 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.morning || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'morning', e.target.checked)}
+                            checked={med.timing.morning}
+                            onChange={e =>
+                              updateMedicationTiming(index, 'morning', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>M</span>
@@ -380,8 +515,10 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.afternoon || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'afternoon', e.target.checked)}
+                            checked={med.timing.afternoon}
+                            onChange={e =>
+                              updateMedicationTiming(index, 'afternoon', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>A</span>
@@ -389,8 +526,10 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.evening || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'evening', e.target.checked)}
+                            checked={med.timing.evening}
+                            onChange={e =>
+                              updateMedicationTiming(index, 'evening', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>E</span>
@@ -398,8 +537,8 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.dinner || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'dinner', e.target.checked)}
+                            checked={med.timing.night}
+                            onChange={e => updateMedicationTiming(index, 'night', e.target.checked)}
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>N</span>
@@ -411,8 +550,10 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.beforeMeal || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'beforeMeal', e.target.checked)}
+                            checked={med.meal.beforeMeal}
+                            onChange={e =>
+                              updateMedicationMeal(index, 'beforeMeal', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>Before</span>
@@ -420,8 +561,10 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.afterMeal || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'afterMeal', e.target.checked)}
+                            checked={med.meal.afterMeal}
+                            onChange={e =>
+                              updateMedicationMeal(index, 'afterMeal', e.target.checked)
+                            }
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>After</span>
@@ -472,13 +615,20 @@ const PrescriptionNew = () => {
               opacity: loading ? 0.6 : 1,
             }}
           >
-            {loading ? 'Creating Prescription...' : 'Create Prescription'}
+            {loading ? 'Saving...' : 'Save Prescription'}
           </button>
           <button
             type="button"
-            onClick={() => navigate(-1)}
-            style={styles.cancelButton}
+            onClick={handleBilling}
+            disabled={loading}
+            style={{
+              ...styles.billingButton,
+              opacity: loading ? 0.6 : 1,
+            }}
           >
+            {loading ? 'Processing...' : 'Save & Bill (Deduct Inventory)'}
+          </button>
+          <button type="button" onClick={() => navigate(-1)} style={styles.cancelButton}>
             Cancel
           </button>
         </div>
@@ -836,6 +986,19 @@ const styles = {
     fontWeight: '600',
     transition: 'all 0.2s ease',
     boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+  },
+  billingButton: {
+    flex: 1,
+    padding: '0.875rem 1.5rem',
+    fontSize: '1rem',
+    backgroundColor: '#059669',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)',
   },
   cancelButton: {
     padding: '0.875rem 1.5rem',

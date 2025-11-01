@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { visitService, patientService } from '../../services';
-import userService, { type User } from '../../services/userService';
-import type { Patient, VisitFormData } from '../../types';
+import userService from '../../services/userService';
+import type { Patient, VisitFormData, User } from '../../types';
 import type { AxiosError } from '../../types/api';
 import { useAuth } from '../../context/AuthContext';
 import PreConsultationForm from '../../components/visits/PreConsultationForm';

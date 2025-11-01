@@ -1,35 +1,44 @@
+export interface MedicationTiming {
+  morning: boolean;
+  afternoon: boolean;
+  evening: boolean;
+  night: boolean;
+}
+
+export interface MedicationMeal {
+  beforeMeal: boolean;
+  afterMeal: boolean;
+}
+
 export interface Medication {
   medicineName: string;
-  dosage: string;       // e.g., "500mg"
-  frequency: string;    // e.g., "TDS" (3x), "BD" (2x)
-  duration: string;     // e.g., "7 days"
-  route: string;        // Oral/IV/Topical
-  instructions?: string;
-  timing?: string;
-  // New timing structure for ERP-style prescription
-  morning?: boolean;
-  afternoon?: boolean;
-  evening?: boolean;
-  dinner?: boolean;
-  beforeMeal?: boolean;
-  afterMeal?: boolean;
+  dosage: string;
+  days: number;
+  timing: MedicationTiming;
+  meal: MedicationMeal;
 }
 
 export interface MedicationHistory {
-  _id: string;
+  _id?: string;
+  hospitalId: string;
   patientId: string;
   visitId: string;
   prescribedDate: Date;
+  doctorId: string;
   consultingDoctor: string;
   diagnosis?: string;
   medications: Medication[];
   notes?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface MedicationFormData {
+export interface PrescriptionFormData {
+  hospitalId: string;
   patientId: string;
   visitId: string;
   prescribedDate: Date;
+  doctorId: string;
   consultingDoctor: string;
   diagnosis?: string;
   medications: Medication[];
