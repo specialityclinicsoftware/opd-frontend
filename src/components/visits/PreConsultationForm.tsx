@@ -519,6 +519,7 @@ const styles = {
     color: '#3b82f6',
     fontWeight: '600' as const,
     textAlign: 'center' as const,
+    lineHeight: 'normal',
   },
   checkboxSection: {
     display: 'flex',

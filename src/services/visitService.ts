@@ -102,14 +102,15 @@ export const visitService = {
   },
 
   // Get pending visits (awaiting doctor review)
-  getPendingVisits: async (): Promise<ApiResponse<Visit[]>> => {
-    const response = await apiClient.get<BackendVisitListResponse>('/api/visits/pending');
-    // Handle nested data structure
-    const visits = response.data.data?.visits || response.data.visits || [];
+  getPendingVisits: async (hospitalId: string): Promise<ApiResponse<Visit[]>> => {
+    const response = await apiClient.get(
+      `/api/hospitals/${hospitalId}/visits/workflow?status=ready-for-doctor`
+    );
+    // The workflow endpoint returns data directly as an array
     return {
       success: response.data.success,
       message: response.data.message || 'Pending visits fetched successfully',
-      data: visits,
+      data: response.data.data || [],
     };
   },
 
