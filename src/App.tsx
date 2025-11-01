@@ -27,6 +27,11 @@ import ConsultationWorkflow from './pages/Visits/ConsultationWorkflow';
 import PrescriptionNew from './pages/Prescriptions/PrescriptionNew';
 import PatientHistory from './pages/History/PatientHistory';
 
+// Pharmacy
+import PharmacyInventory from './pages/Pharmacy/PharmacyInventory';
+import AddMedicine from './pages/Pharmacy/AddMedicine';
+import EditMedicine from './pages/Pharmacy/EditMedicine';
+
 // Admin
 import HospitalList from './pages/Admin/HospitalList';
 import CreateHospital from './pages/Admin/CreateHospital';
@@ -171,6 +176,38 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <PatientHistory />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Pharmacy Inventory */}
+          <Route
+            path="/pharmacy"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PharmacyInventory />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pharmacy/add"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AddMedicine />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pharmacy/edit/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <EditMedicine />
                 </Layout>
               </ProtectedRoute>
             }
