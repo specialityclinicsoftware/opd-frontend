@@ -7,6 +7,7 @@ const PrescriptionNew = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preselectedPatientId = searchParams.get('patientId');
+  const preselectedDoctor = searchParams.get('doctor');
 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -18,7 +19,7 @@ const PrescriptionNew = () => {
     patientId: preselectedPatientId || '',
     visitId: '',
     prescribedDate: new Date(),
-    consultingDoctor: '',
+    consultingDoctor: preselectedDoctor || '',
     diagnosis: '',
     medications: [
       {

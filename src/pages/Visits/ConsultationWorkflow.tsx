@@ -75,6 +75,57 @@ const ConsultationWorkflow = () => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    // Shift+Enter submits the form
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      if (submitButton) {
+        submitButton.click();
+      }
+      return;
+    }
+
+    // Arrow key navigation (left/right)
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      // Get all focusable elements (excluding checkboxes and buttons)
+      const form = e.currentTarget;
+      const focusableElements = Array.from(
+        form.querySelectorAll<HTMLElement>(
+          'input[type="text"]:not([disabled]), input[type="number"]:not([disabled]), input[type="date"]:not([disabled]), input[type="time"]:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+        )
+      );
+
+      const target = e.target as HTMLElement;
+      const currentIndex = focusableElements.indexOf(target);
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const nextElement = focusableElements[currentIndex + 1];
+        if (nextElement) {
+          nextElement.focus();
+          // If it's an input or textarea, select the content
+          if (nextElement.tagName === 'INPUT' || nextElement.tagName === 'TEXTAREA') {
+            (nextElement as HTMLInputElement | HTMLTextAreaElement).select();
+          }
+        }
+      }
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prevElement = focusableElements[currentIndex - 1];
+        if (prevElement) {
+          prevElement.focus();
+          // If it's an input or textarea, select the content
+          if (prevElement.tagName === 'INPUT' || prevElement.tagName === 'TEXTAREA') {
+            (prevElement as HTMLInputElement | HTMLTextAreaElement).select();
+          }
+        }
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -97,8 +148,17 @@ const ConsultationWorkflow = () => {
         reviewDate: formData.reviewDate,
       });
 
-      alert('Consultation completed successfully!');
-      navigate('/visits/pending');
+      // Get patient ID and doctor name from visit data
+      const patientId =
+        typeof visit?.patientId === 'string' ? visit.patientId : visit?.patientId?._id;
+      const doctorName = formData.consultingDoctor || visit?.consultingDoctor || '';
+
+      // Redirect to prescription page with patient and doctor pre-selected
+      const params = new URLSearchParams();
+      if (patientId) params.append('patientId', patientId);
+      if (doctorName) params.append('doctor', doctorName);
+
+      navigate(`/prescriptions/new?${params.toString()}`);
     } catch (err: unknown) {
       const error = err as AxiosError;
       setError(error.response?.data?.message || 'Failed to complete consultation');
@@ -262,7 +322,7 @@ const ConsultationWorkflow = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
         {error && <div style={styles.error}>{error}</div>}
 
         {/* Consultation Form with Pre-Consultation Data */}

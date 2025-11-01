@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { visitService, patientService } from '../../services';
+import userService, { type User } from '../../services/userService';
 import type { Patient, VisitFormData } from '../../types';
 import type { AxiosError } from '../../types/api';
 import { useAuth } from '../../context/AuthContext';
@@ -10,11 +11,12 @@ const PreConsultationWorkflow = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   // Role checks for future access control
-  const { isDoctor: _isDoctor, isNurse: _isNurse } = useAuth();
+  const { isDoctor: _isDoctor, isNurse: _isNurse, user } = useAuth();
   const [searchParams] = useSearchParams();
   const preselectedPatientId = searchParams.get('patientId');
 
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [doctors, setDoctors] = useState<User[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,11 +43,14 @@ const PreConsultationWorkflow = () => {
 
   useEffect(() => {
     loadPatients();
+    if (user?.hospitalId) {
+      loadDoctors();
+    }
     if (id) {
       setIsNewVisit(false);
       loadExistingVisit();
     }
-  }, [id]);
+  }, [id, user?.hospitalId]);
 
   useEffect(() => {
     if (preselectedPatientId && patients.length > 0) {
@@ -63,6 +68,16 @@ const PreConsultationWorkflow = () => {
       setPatients(response.data || []);
     } catch (err) {
       console.error('Load patients error:', err);
+    }
+  };
+
+  const loadDoctors = async () => {
+    if (!user?.hospitalId) return;
+    try {
+      const doctorsData = await userService.getHospitalDoctors(user.hospitalId);
+      setDoctors(doctorsData || []);
+    } catch (err) {
+      console.error('Load doctors error:', err);
     }
   };
 
@@ -101,6 +116,57 @@ const PreConsultationWorkflow = () => {
     const patient = patients.find(p => p._id === patientId);
     setSelectedPatient(patient || null);
     setFormData({ ...formData, patientId });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    // Shift+Enter submits the form
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      if (submitButton) {
+        submitButton.click();
+      }
+      return;
+    }
+
+    // Arrow key navigation (left/right)
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      // Get all focusable elements (excluding checkboxes and buttons)
+      const form = e.currentTarget;
+      const focusableElements = Array.from(
+        form.querySelectorAll<HTMLElement>(
+          'input[type="text"]:not([disabled]), input[type="number"]:not([disabled]), input[type="date"]:not([disabled]), input[type="time"]:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+        )
+      );
+
+      const target = e.target as HTMLElement;
+      const currentIndex = focusableElements.indexOf(target);
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const nextElement = focusableElements[currentIndex + 1];
+        if (nextElement) {
+          nextElement.focus();
+          // If it's an input or textarea, select the content
+          if (nextElement.tagName === 'INPUT' || nextElement.tagName === 'TEXTAREA') {
+            (nextElement as HTMLInputElement | HTMLTextAreaElement).select();
+          }
+        }
+      }
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prevElement = focusableElements[currentIndex - 1];
+        if (prevElement) {
+          prevElement.focus();
+          // If it's an input or textarea, select the content
+          if (prevElement.tagName === 'INPUT' || prevElement.tagName === 'TEXTAREA') {
+            (prevElement as HTMLInputElement | HTMLTextAreaElement).select();
+          }
+        }
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -162,7 +228,7 @@ const PreConsultationWorkflow = () => {
 
   return (
     <div style={styles.container}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
         {error && <div style={styles.error}>{error}</div>}
 
         {/* Compact Header */}
@@ -215,15 +281,20 @@ const PreConsultationWorkflow = () => {
               {/* Consulting Doctor */}
               <div style={styles.compactField}>
                 <label style={styles.compactLabel}>Doctor *</label>
-                <input
-                  type="text"
+                <select
                   name="consultingDoctor"
                   value={formData.consultingDoctor}
                   onChange={(e) => setFormData({ ...formData, consultingDoctor: e.target.value })}
-                  placeholder="Dr. Name"
-                  style={styles.compactInput}
+                  style={styles.compactSelect}
                   required
-                />
+                >
+                  <option value="">Select Doctor</option>
+                  {doctors.map(doctor => (
+                    <option key={doctor._id} value={doctor.name}>
+                      {doctor.name} {doctor.specialization ? `(${doctor.specialization})` : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <button
