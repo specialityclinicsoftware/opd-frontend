@@ -18,6 +18,7 @@ const authService = {
    */
   login: async (credentials: LoginCredentials): Promise<ApiResponse<LoginResponse>> => {
     const response = await apiClient.post('/api/auth/login', credentials);
+    // Auth endpoints return the full ApiResponse structure
     return response.data;
   },
 

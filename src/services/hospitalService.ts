@@ -67,7 +67,7 @@ const hospitalService = {
   // Get single hospital
   getHospital: async (hospitalId: string): Promise<Hospital> => {
     const response = await apiClient.get(`/api/hospitals/${hospitalId}`);
-    return response.data;
+    return response.data.data;
   },
 
   // Create new hospital with admin (super admin only)
@@ -79,7 +79,7 @@ const hospitalService = {
   // Update hospital
   updateHospital: async (hospitalId: string, data: UpdateHospitalInput): Promise<Hospital> => {
     const response = await apiClient.put(`/api/hospitals/${hospitalId}`, data);
-    return response.data;
+    return response.data.data;
   },
 
   // Activate hospital

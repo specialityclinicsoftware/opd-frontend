@@ -24,7 +24,7 @@ const UserList: React.FC = () => {
   const targetHospitalId = hospitalId || currentUser?.hospitalId;
 
 
-  const { data: response, isLoading } = useQuery({
+  const { data: users, isLoading } = useQuery({
     queryKey: ['users', targetHospitalId],
     queryFn: () => userService.getHospitalUsers(targetHospitalId!),
     enabled: !!targetHospitalId,
@@ -88,7 +88,7 @@ const UserList: React.FC = () => {
     return labels[role] || role;
   };
 
-  const filteredUsers = response?.data?.filter(
+  const filteredUsers = users?.filter(
     (user) => filterRole === 'all' || user.role === filterRole
   );
 
