@@ -7,7 +7,7 @@ import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
   const [searchPhone, setSearchPhone] = useState('');
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const hospitalId = user?.hospitalId;
 
   // Fetch all patients
@@ -60,14 +60,16 @@ const Dashboard = () => {
     <div className={styles.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', margin: 0 }}>Dashboard</h1>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <Link to="/patients/register" className={styles.actionButton}>
-            + New Patient
-          </Link>
-          <Link to="/visits/workflow/new/pre-consultation" className={styles.actionButton}>
-            + New Visit
-          </Link>
-        </div>
+        {!isSuperAdmin && (
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <Link to="/patients/register" className={styles.actionButton}>
+              + New Patient
+            </Link>
+            <Link to="/visits/workflow/new/pre-consultation" className={styles.actionButton}>
+              + New Visit
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Stats Cards */}
