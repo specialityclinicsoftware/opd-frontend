@@ -1,5 +1,5 @@
 import apiClient from './api';
-import type { MedicationHistory, MedicationFormData, ApiResponse } from '../types';
+import type { MedicationHistory, PrescriptionFormData, ApiResponse } from '../types';
 
 // Backend response format (actual)
 interface BackendMedicationListResponse {
@@ -18,8 +18,8 @@ interface BackendMedicationResponse {
 
 export const medicationService = {
   // Add prescription
-  create: async (medicationData: MedicationFormData): Promise<ApiResponse<MedicationHistory>> => {
-    const response = await apiClient.post<BackendMedicationResponse>('/api/medications/', medicationData);
+  create: async (medicationData: PrescriptionFormData): Promise<ApiResponse<MedicationHistory>> => {
+    const response = await apiClient.post<BackendMedicationResponse>('/api/medications', medicationData);
     return {
       success: response.data.success,
       message: response.data.message || 'Prescription created successfully',
@@ -70,7 +70,7 @@ export const medicationService = {
   },
 
   // Update prescription
-  update: async (id: string, medicationData: Partial<MedicationFormData>): Promise<ApiResponse<MedicationHistory>> => {
+  update: async (id: string, medicationData: Partial<PrescriptionFormData>): Promise<ApiResponse<MedicationHistory>> => {
     const response = await apiClient.put<BackendMedicationResponse>(`/api/medications/${id}`, medicationData);
     return {
       success: response.data.success,

@@ -1,41 +1,47 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { medicationService, patientService, visitService } from '../../services';
-import type { Patient, Visit, Medication, MedicationFormData } from '../../types';
+import { userService } from '../../services';
+import { useAuth } from '../../context/AuthContext';
+import type { Patient, Visit, Medication, PrescriptionFormData, User } from '../../types';
 
 const PrescriptionNew = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const preselectedPatientId = searchParams.get('patientId');
   const preselectedDoctor = searchParams.get('doctor');
 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [visits, setVisits] = useState<Visit[]>([]);
+  const [doctors, setDoctors] = useState<User[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const [formData, setFormData] = useState<MedicationFormData>({
+  const [formData, setFormData] = useState<PrescriptionFormData>({
+    hospitalId: user?.hospitalId || '',
     patientId: preselectedPatientId || '',
     visitId: '',
     prescribedDate: new Date(),
-    consultingDoctor: preselectedDoctor || '',
+    doctorId: user?._id || '',
+    consultingDoctor: preselectedDoctor || user?.name || '',
     diagnosis: '',
     medications: [
       {
         medicineName: '',
         dosage: '',
-        frequency: 'OD',
-        duration: '',
-        route: 'Oral',
-        instructions: '',
-        timing: '',
-        morning: false,
-        afternoon: false,
-        evening: false,
-        dinner: false,
-        beforeMeal: false,
-        afterMeal: false,
+        days: 1,
+        timing: {
+          morning: false,
+          afternoon: false,
+          evening: false,
+          night: false,
+        },
+        meal: {
+          beforeMeal: false,
+          afterMeal: false,
+        },
       },
     ],
     notes: '',
@@ -43,6 +49,7 @@ const PrescriptionNew = () => {
 
   useEffect(() => {
     loadPatients();
+    loadDoctors();
   }, []);
 
   useEffect(() => {
@@ -75,11 +82,21 @@ const PrescriptionNew = () => {
     }
   };
 
+  const loadDoctors = async () => {
+    if (!user?.hospitalId) return;
+    try {
+      const doctors = await userService.getHospitalDoctors(user.hospitalId);
+      setDoctors(Array.isArray(doctors) ? doctors : []);
+    } catch (err) {
+      console.error('Load doctors error:', err);
+    }
+  };
+
   const handlePatientChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const patientId = e.target.value;
     const patient = patients.find(p => p._id === patientId);
     setSelectedPatient(patient || null);
-    setFormData({ ...formData, patientId, visitId: '' });
+    setFormData(prev => ({ ...prev, patientId, visitId: '' }));
     if (patientId) {
       await loadVisits(patientId);
     } else {
@@ -91,53 +108,83 @@ const PrescriptionNew = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleDoctorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const doctorId = e.target.value;
+    const doctor = doctors.find(d => d._id === doctorId);
+    setFormData(prev => ({
+      ...prev,
+      doctorId,
+      consultingDoctor: doctor?.name || '',
+    }));
   };
 
   const addMedication = () => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       medications: [
-        ...formData.medications,
+        ...prev.medications,
         {
           medicineName: '',
           dosage: '',
-          frequency: 'OD',
-          duration: '',
-          route: 'Oral',
-          instructions: '',
-          timing: '',
-          morning: false,
-          afternoon: false,
-          evening: false,
-          dinner: false,
-          beforeMeal: false,
-          afterMeal: false,
+          days: 1,
+          timing: {
+            morning: false,
+            afternoon: false,
+            evening: false,
+            night: false,
+          },
+          meal: {
+            beforeMeal: false,
+            afterMeal: false,
+          },
         },
       ],
-    });
+    }));
   };
 
   const removeMedication = (index: number) => {
-    if (formData.medications.length === 1) {
-      alert('At least one medication is required');
-      return;
-    }
-    const meds = [...formData.medications];
-    meds.splice(index, 1);
-    setFormData({ ...formData, medications: meds });
+    setFormData(prev => {
+      if (prev.medications.length === 1) {
+        alert('At least one medication is required');
+        return prev;
+      }
+      const meds = [...prev.medications];
+      meds.splice(index, 1);
+      return { ...prev, medications: meds };
+    });
   };
 
-  const updateMedication = (index: number, field: keyof Medication, value: string) => {
-    const meds = [...formData.medications];
-    meds[index] = { ...meds[index], [field]: value };
-    setFormData({ ...formData, medications: meds });
+  const updateMedication = (index: number, field: keyof Medication, value: string | number) => {
+    setFormData(prev => {
+      const meds = [...prev.medications];
+      meds[index] = { ...meds[index], [field]: value };
+      return { ...prev, medications: meds };
+    });
   };
 
-  const updateMedicationCheckbox = (index: number, field: keyof Medication, checked: boolean) => {
-    const meds = [...formData.medications];
-    meds[index] = { ...meds[index], [field]: checked };
-    setFormData({ ...formData, medications: meds });
+  const updateMedicationTiming = (index: number, field: keyof Medication['timing'], checked: boolean) => {
+    setFormData(prev => {
+      const meds = [...prev.medications];
+      meds[index] = {
+        ...meds[index],
+        timing: { ...meds[index].timing, [field]: checked },
+      };
+      return { ...prev, medications: meds };
+    });
+  };
+
+  const updateMedicationMeal = (index: number, field: keyof Medication['meal'], checked: boolean) => {
+    setFormData(prev => {
+      const meds = [...prev.medications];
+      meds[index] = {
+        ...meds[index],
+        meal: { ...meds[index].meal, [field]: checked },
+      };
+      return { ...prev, medications: meds };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -223,18 +270,22 @@ const PrescriptionNew = () => {
                 </select>
               </div>
 
-              {/* Doctor Input */}
+              {/* Doctor Dropdown */}
               <div style={styles.compactField}>
                 <label style={styles.compactLabel}>Doctor *</label>
-                <input
-                  type="text"
-                  name="consultingDoctor"
-                  value={formData.consultingDoctor}
-                  onChange={handleChange}
-                  placeholder="Dr. Name"
-                  style={styles.compactInput}
+                <select
+                  value={formData.doctorId}
+                  onChange={handleDoctorChange}
+                  style={styles.compactSelect}
                   required
-                />
+                >
+                  <option value="">Select Doctor</option>
+                  {doctors.map(doctor => (
+                    <option key={doctor._id} value={doctor._id}>
+                      {doctor.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Date Input */}
@@ -244,7 +295,7 @@ const PrescriptionNew = () => {
                   type="date"
                   name="prescribedDate"
                   value={formData.prescribedDate instanceof Date ? formData.prescribedDate.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setFormData({ ...formData, prescribedDate: new Date(e.target.value) })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, prescribedDate: new Date(e.target.value) }))}
                   style={styles.compactInput}
                 />
               </div>
@@ -360,10 +411,11 @@ const PrescriptionNew = () => {
                     <td style={styles.tableCell}>
                       <input
                         type="number"
-                        value={med.duration}
-                        onChange={(e) => updateMedication(index, 'duration', e.target.value)}
+                        value={med.days}
+                        onChange={(e) => updateMedication(index, 'days', parseInt(e.target.value) || 1)}
                         placeholder="7"
                         style={styles.tableInput}
+                        min="1"
                       />
                     </td>
                     <td style={styles.tableCell}>
@@ -371,8 +423,8 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.morning || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'morning', e.target.checked)}
+                            checked={med.timing.morning}
+                            onChange={(e) => updateMedicationTiming(index, 'morning', e.target.checked)}
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>M</span>
@@ -380,8 +432,8 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.afternoon || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'afternoon', e.target.checked)}
+                            checked={med.timing.afternoon}
+                            onChange={(e) => updateMedicationTiming(index, 'afternoon', e.target.checked)}
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>A</span>
@@ -389,8 +441,8 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.evening || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'evening', e.target.checked)}
+                            checked={med.timing.evening}
+                            onChange={(e) => updateMedicationTiming(index, 'evening', e.target.checked)}
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>E</span>
@@ -398,8 +450,8 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.dinner || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'dinner', e.target.checked)}
+                            checked={med.timing.night}
+                            onChange={(e) => updateMedicationTiming(index, 'night', e.target.checked)}
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>N</span>
@@ -411,8 +463,8 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.beforeMeal || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'beforeMeal', e.target.checked)}
+                            checked={med.meal.beforeMeal}
+                            onChange={(e) => updateMedicationMeal(index, 'beforeMeal', e.target.checked)}
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>Before</span>
@@ -420,8 +472,8 @@ const PrescriptionNew = () => {
                         <label style={styles.checkboxLabel}>
                           <input
                             type="checkbox"
-                            checked={med.afterMeal || false}
-                            onChange={(e) => updateMedicationCheckbox(index, 'afterMeal', e.target.checked)}
+                            checked={med.meal.afterMeal}
+                            onChange={(e) => updateMedicationMeal(index, 'afterMeal', e.target.checked)}
                             style={styles.checkbox}
                           />
                           <span style={styles.checkboxText}>After</span>
