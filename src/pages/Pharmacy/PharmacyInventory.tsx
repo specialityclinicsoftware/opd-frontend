@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { inventoryService } from '../../services';
 import type { InventoryItem, InventoryStats } from '../../types';
@@ -13,22 +13,24 @@ const PharmacyInventory = () => {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'low-stock' | 'expiring'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage] = useState(10);
 
   console.log({ stats });
 
-  // Load data when filter type changes
-  useEffect(() => {
-    if (user?.hospitalId) {
-      loadData();
-    }
-  }, [user?.hospitalId, filterType]);
-
-  const loadData = async (searchQuery?: string) => {
+  const loadData = useCallback(async (searchQuery?: string, resetPage = false) => {
     if (!user?.hospitalId) return;
 
     try {
       setLoading(true);
       setError('');
+
+      const pageToUse = resetPage ? 1 : currentPage;
+      if (resetPage) {
+        setCurrentPage(1);
+      }
 
       // Load stats (only when not searching)
       if (!searchQuery?.trim()) {
@@ -40,31 +42,69 @@ const PharmacyInventory = () => {
       const search = searchQuery?.trim() || undefined;
       let response;
       if (filterType === 'low-stock') {
-        response = await inventoryService.getLowStock(user.hospitalId, search);
+        response = await inventoryService.getLowStock(
+          user.hospitalId,
+          search,
+          pageToUse,
+          itemsPerPage
+        );
       } else if (filterType === 'expiring') {
-        response = await inventoryService.getExpiring(user.hospitalId, search);
+        response = await inventoryService.getExpiring(
+          user.hospitalId,
+          search,
+          pageToUse,
+          itemsPerPage
+        );
       } else {
-        response = await inventoryService.getByHospital(user.hospitalId, search);
+        response = await inventoryService.getByHospital(
+          user.hospitalId,
+          search,
+          pageToUse,
+          itemsPerPage
+        );
       }
 
       console.log('Loaded inventory:', response.data.inventory);
 
       setInventory(response.data.inventory);
+
+      // Update pagination state
+      if (response.data.pagination) {
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalItems(response.data.pagination.total);
+      } else {
+        // Fallback if pagination is not provided
+        setTotalPages(1);
+        setTotalItems(response.data.inventory.length);
+      }
     } catch (err) {
       console.error('Load inventory error:', err);
       setError('Failed to load inventory');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.hospitalId, currentPage, filterType, itemsPerPage]);
+
+  // Load data when filter type or page changes
+  useEffect(() => {
+    if (user?.hospitalId) {
+      loadData();
+    }
+  }, [user?.hospitalId, filterType, currentPage, loadData]);
 
   const handleSearch = () => {
-    loadData(searchTerm);
+    loadData(searchTerm, true); // Reset to page 1 when searching
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
+      setCurrentPage(newPage);
     }
   };
 
@@ -104,7 +144,7 @@ const PharmacyInventory = () => {
   };
 
   const isLowStock = (item: InventoryItem) => {
-    return item.quantity <= item.reorderLevel;
+    return item.quantity <= item.minStockLevel;
   };
 
   if (loading) {
@@ -149,7 +189,7 @@ const PharmacyInventory = () => {
       <div style={styles.header}>
         <div>
           <h1 style={styles.title}>Pharmacy Inventory</h1>
-          <p style={styles.subtitle}>{inventory.length} items</p>
+          <p style={styles.subtitle}>{totalItems} items</p>
         </div>
         <button onClick={() => navigate('/pharmacy/add')} style={styles.addButton}>
           <svg
@@ -344,7 +384,7 @@ const PharmacyInventory = () => {
             <thead>
               <tr>
                 <th style={styles.tableHeader}>#</th>
-                <th style={styles.tableHeader}>Medicine Name</th>
+                <th style={styles.tableHeader}>Item Name</th>
                 <th style={styles.tableHeader}>Generic Name</th>
                 <th style={styles.tableHeader}>Batch No.</th>
                 <th style={styles.tableHeader}>Quantity</th>
@@ -361,7 +401,7 @@ const PharmacyInventory = () => {
                 <tr key={item._id} style={styles.tableRow}>
                   <td style={styles.tableCell}>{index + 1}</td>
                   <td style={styles.tableCellBold}>
-                    {item.medicineName}
+                    {item.itemName}
                     {item.manufacturer && <div style={styles.subText}>{item.manufacturer}</div>}
                   </td>
                   <td style={styles.tableCell}>{item.genericName || '-'}</td>
@@ -446,6 +486,128 @@ const PharmacyInventory = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {inventory.length > 0 && totalPages > 1 && (
+        <div style={styles.paginationContainer}>
+          <div style={styles.paginationInfo}>
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+            {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} items
+          </div>
+          <div style={styles.paginationButtons}>
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage === 1}
+              style={{
+                ...styles.paginationButton,
+                ...(currentPage === 1 ? styles.paginationButtonDisabled : {}),
+              }}
+              title="First Page"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="11 17 6 12 11 7" />
+                <polyline points="18 17 13 12 18 7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={{
+                ...styles.paginationButton,
+                ...(currentPage === 1 ? styles.paginationButtonDisabled : {}),
+              }}
+              title="Previous Page"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+
+            {/* Page Numbers */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNumber;
+              if (totalPages <= 5) {
+                pageNumber = i + 1;
+              } else if (currentPage <= 3) {
+                pageNumber = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNumber = totalPages - 4 + i;
+              } else {
+                pageNumber = currentPage - 2 + i;
+              }
+
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => handlePageChange(pageNumber)}
+                  style={{
+                    ...styles.paginationButton,
+                    ...(currentPage === pageNumber ? styles.paginationButtonActive : {}),
+                  }}
+                >
+                  {pageNumber}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={{
+                ...styles.paginationButton,
+                ...(currentPage === totalPages ? styles.paginationButtonDisabled : {}),
+              }}
+              title="Next Page"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+              style={{
+                ...styles.paginationButton,
+                ...(currentPage === totalPages ? styles.paginationButtonDisabled : {}),
+              }}
+              title="Last Page"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="13 17 18 12 13 7" />
+                <polyline points="6 17 11 12 6 7" />
+              </svg>
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -803,6 +965,52 @@ const styles = {
   },
   deleteButton: {
     color: '#dc2626',
+  },
+  paginationContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '1.25rem',
+    padding: '1rem 1.25rem',
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+  },
+  paginationInfo: {
+    fontSize: '0.875rem',
+    color: '#64748b',
+    fontWeight: '500' as const,
+  },
+  paginationButtons: {
+    display: 'flex',
+    gap: '0.5rem',
+    alignItems: 'center',
+  },
+  paginationButton: {
+    padding: '0.5rem 0.75rem',
+    backgroundColor: '#f8fafc',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+    fontWeight: '500' as const,
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '40px',
+  },
+  paginationButtonActive: {
+    backgroundColor: '#3b82f6',
+    color: 'white',
+    borderColor: '#3b82f6',
+    fontWeight: '600' as const,
+  },
+  paginationButtonDisabled: {
+    opacity: 0.4,
+    cursor: 'not-allowed',
   },
 };
 

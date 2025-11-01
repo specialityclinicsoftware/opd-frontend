@@ -11,21 +11,21 @@ const EditMedicine = () => {
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState<InventoryFormData>({
-    medicineName: '',
+    itemName: '',
     genericName: '',
     manufacturer: '',
     batchNumber: '',
     quantity: 0,
     unit: 'tablets',
-    reorderLevel: 10,
+    minStockLevel: 10,
     purchasePrice: 0,
     sellingPrice: 0,
+    mrp: 0,
     expiryDate: new Date(),
-    manufactureDate: new Date(),
-    supplier: '',
     location: '',
     category: '',
     description: '',
+    notes: '',
   });
 
   useEffect(() => {
@@ -43,21 +43,21 @@ const EditMedicine = () => {
       const item = response.data;
 
       setFormData({
-        medicineName: item.medicineName,
+        itemName: item.itemName,
         genericName: item.genericName || '',
         manufacturer: item.manufacturer || '',
         batchNumber: item.batchNumber,
         quantity: item.quantity,
         unit: item.unit,
-        reorderLevel: item.reorderLevel,
+        minStockLevel: item.minStockLevel,
         purchasePrice: item.purchasePrice,
         sellingPrice: item.sellingPrice,
+        mrp: item.mrp || 0,
         expiryDate: new Date(item.expiryDate),
-        manufactureDate: item.manufactureDate ? new Date(item.manufactureDate) : new Date(),
-        supplier: item.supplier || '',
         location: item.location || '',
         category: item.category || '',
         description: item.description || '',
+        notes: item.notes || '',
       });
     } catch (err) {
       console.error('Load medicine error:', err);
@@ -99,7 +99,7 @@ const EditMedicine = () => {
   };
 
   const units = ['tablets', 'capsules', 'ml', 'mg', 'gm', 'bottles', 'boxes', 'strips', 'vials', 'syringes'];
-  const categories = ['Antibiotic', 'Analgesic', 'Antipyretic', 'Anti-inflammatory', 'Antacid', 'Antihistamine', 'Antidiabetic', 'Antihypertensive', 'Vitamin', 'Supplement', 'Other'];
+  const categories = ['tablet', 'capsule', 'syrup', 'injection', 'ointment', 'drops', 'inhaler', 'suspension'];
 
   const profitMargin = formData.purchasePrice > 0
     ? (((formData.sellingPrice - formData.purchasePrice) / formData.purchasePrice) * 100).toFixed(1)
@@ -143,12 +143,12 @@ const EditMedicine = () => {
           <table style={styles.table}>
             <tbody>
               <tr style={styles.row}>
-                <td style={styles.labelCell}>Medicine Name *</td>
+                <td style={styles.labelCell}>Item Name *</td>
                 <td style={styles.inputCell}>
                   <input
                     type="text"
-                    name="medicineName"
-                    value={formData.medicineName}
+                    name="itemName"
+                    value={formData.itemName}
                     onChange={handleChange}
                     style={styles.input}
                     required
@@ -200,14 +200,15 @@ const EditMedicine = () => {
                     required
                   />
                 </td>
-                <td style={styles.labelCell}>Supplier</td>
+                <td style={styles.labelCell}>Location</td>
                 <td style={styles.inputCell}>
                   <input
                     type="text"
-                    name="supplier"
-                    value={formData.supplier}
+                    name="location"
+                    value={formData.location}
                     onChange={handleChange}
                     style={styles.input}
+                    placeholder="Shelf A-12"
                   />
                 </td>
               </tr>
@@ -236,26 +237,29 @@ const EditMedicine = () => {
               </tr>
 
               <tr style={styles.row}>
-                <td style={styles.labelCell}>Reorder Level *</td>
+                <td style={styles.labelCell}>Min Stock Level *</td>
                 <td style={styles.inputCell}>
                   <input
                     type="number"
-                    name="reorderLevel"
-                    value={formData.reorderLevel}
+                    name="minStockLevel"
+                    value={formData.minStockLevel}
                     onChange={handleChange}
                     style={styles.input}
                     required
                     min="0"
                   />
                 </td>
-                <td style={styles.labelCell}>Location</td>
+                <td style={styles.labelCell}>MRP (₹)</td>
                 <td style={styles.inputCell}>
                   <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
+                    type="number"
+                    name="mrp"
+                    value={formData.mrp}
                     onChange={handleChange}
                     style={styles.input}
+                    min="0"
+                    step="0.01"
+                    placeholder="Maximum Retail Price"
                   />
                 </td>
               </tr>
@@ -296,19 +300,6 @@ const EditMedicine = () => {
                     ₹{(formData.sellingPrice - formData.purchasePrice).toFixed(2)} ({profitMargin}%)
                   </div>
                 </td>
-                <td style={styles.labelCell}>Manufacture Date</td>
-                <td style={styles.inputCell}>
-                  <input
-                    type="date"
-                    name="manufactureDate"
-                    value={formData.manufactureDate instanceof Date ? formData.manufactureDate.toISOString().split('T')[0] : ''}
-                    onChange={handleChange}
-                    style={styles.input}
-                  />
-                </td>
-              </tr>
-
-              <tr style={styles.row}>
                 <td style={styles.labelCell}>Expiry Date *</td>
                 <td style={styles.inputCell}>
                   <input
@@ -320,6 +311,9 @@ const EditMedicine = () => {
                     required
                   />
                 </td>
+              </tr>
+
+              <tr style={styles.row}>
                 <td style={styles.labelCell}>Description</td>
                 <td style={styles.inputCell}>
                   <input
@@ -328,6 +322,18 @@ const EditMedicine = () => {
                     value={formData.description}
                     onChange={handleChange}
                     style={styles.input}
+                    placeholder="Brief description..."
+                  />
+                </td>
+                <td style={styles.labelCell}>Notes</td>
+                <td style={styles.inputCell}>
+                  <input
+                    type="text"
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleChange}
+                    style={styles.input}
+                    placeholder="Additional notes..."
                   />
                 </td>
               </tr>

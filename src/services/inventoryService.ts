@@ -25,9 +25,15 @@ const inventoryService = {
   // Get all inventory for a hospital with optional search
   getByHospital: async (
     hospitalId: string,
-    search?: string
+    search?: string,
+    page?: number,
+    limit?: number
   ): Promise<ApiResponse<InventoryItemResponse>> => {
-    const params = search ? { search } : {};
+    const params: Record<string, string | number> = {};
+    if (search) params.search = search;
+    if (page) params.page = page;
+    if (limit) params.limit = limit;
+
     const response = await apiClient.get(`/api/inventory/hospital/${hospitalId}`, { params });
 
     return {
@@ -40,9 +46,15 @@ const inventoryService = {
   // Get low stock items with optional search
   getLowStock: async (
     hospitalId: string,
-    search?: string
+    search?: string,
+    page?: number,
+    limit?: number
   ): Promise<ApiResponse<InventoryItemResponse>> => {
-    const params = search ? { search } : {};
+    const params: Record<string, string | number> = {};
+    if (search) params.search = search;
+    if (page) params.page = page;
+    if (limit) params.limit = limit;
+
     const response = await apiClient.get(`/api/inventory/hospital/${hospitalId}/low-stock`, {
       params,
     });
@@ -56,9 +68,15 @@ const inventoryService = {
   // Get expiring items with optional search
   getExpiring: async (
     hospitalId: string,
-    search?: string
+    search?: string,
+    page?: number,
+    limit?: number
   ): Promise<ApiResponse<InventoryItemResponse>> => {
-    const params = search ? { search } : {};
+    const params: Record<string, string | number> = {};
+    if (search) params.search = search;
+    if (page) params.page = page;
+    if (limit) params.limit = limit;
+
     const response = await apiClient.get(`/api/inventory/hospital/${hospitalId}/expiring`, {
       params,
     });

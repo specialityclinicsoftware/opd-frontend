@@ -1,21 +1,21 @@
 export interface InventoryItem {
   _id: string;
   hospitalId: string;
-  medicineName: string;
+  itemName: string;
   genericName?: string;
   manufacturer?: string;
   batchNumber: string;
   quantity: number;
   unit: string; // e.g., "tablets", "ml", "boxes"
-  reorderLevel: number;
+  minStockLevel: number;
   purchasePrice: number;
   sellingPrice: number;
+  mrp?: number; // Maximum Retail Price
   expiryDate: Date;
-  manufactureDate?: Date;
-  supplier?: string;
   location?: string; // Storage location
-  category?: string; // e.g., "Antibiotic", "Analgesic"
+  category?: string; // e.g., "tablet", "capsule", "syrup"
   description?: string;
+  notes?: string; // Additional notes
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,24 +24,30 @@ export interface InventoryItemResponse {
   count: number;
   inventory: InventoryItem[];
   daysThreshold?: number;
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
 
 export interface InventoryFormData {
-  medicineName: string;
+  itemName: string;
   genericName?: string;
   manufacturer?: string;
   batchNumber: string;
   quantity: number;
   unit: string;
-  reorderLevel: number;
+  minStockLevel: number;
   purchasePrice: number;
   sellingPrice: number;
+  mrp?: number;
   expiryDate: Date;
-  manufactureDate?: Date;
-  supplier?: string;
   location?: string;
   category?: string;
   description?: string;
+  notes?: string;
 }
 
 export interface CategoryCounts {
