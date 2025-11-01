@@ -10,9 +10,8 @@ interface BackendMedicationListResponse {
 
 interface BackendMedicationResponse {
   success: boolean;
-  medication?: MedicationHistory;
-  medicationHistory?: MedicationHistory;
-  message?: string;
+  data: { medicationHistory: MedicationHistory; deductedItems?: number };
+  message: string;
 }
 
 export const medicationService = {
@@ -25,7 +24,7 @@ export const medicationService = {
     return {
       success: response.data.success,
       message: response.data.message || 'Prescription created successfully',
-      data: response.data.medication || response.data.medicationHistory!,
+      data: response.data.data.medicationHistory,
     };
   },
 
@@ -64,7 +63,7 @@ export const medicationService = {
     return {
       success: response.data.success,
       message: response.data.message || 'Medication fetched successfully',
-      data: response.data.medication || response.data.medicationHistory!,
+      data: response.data.data.medicationHistory,
     };
   },
 
@@ -74,7 +73,7 @@ export const medicationService = {
     return {
       success: response.data.success,
       message: response.data.message || 'Medication fetched successfully',
-      data: response.data.medication || response.data.medicationHistory!,
+      data: response.data.data.medicationHistory,
     };
   },
 
@@ -90,7 +89,7 @@ export const medicationService = {
     return {
       success: response.data.success,
       message: response.data.message || 'Prescription updated successfully',
-      data: response.data.medication || response.data.medicationHistory!,
+      data: response.data.data.medicationHistory,
     };
   },
 
@@ -107,7 +106,9 @@ export const medicationService = {
   },
 
   // Create prescription with billing (deducts from inventory)
-  createWithBilling: async (medicationData: PrescriptionFormData): Promise<ApiResponse<MedicationHistory>> => {
+  createWithBilling: async (
+    medicationData: PrescriptionFormData
+  ): Promise<ApiResponse<MedicationHistory>> => {
     const response = await apiClient.post<BackendMedicationResponse>(
       '/api/medications/billing',
       medicationData
@@ -115,7 +116,7 @@ export const medicationService = {
     return {
       success: response.data.success,
       message: response.data.message || 'Prescription saved and billed successfully',
-      data: response.data.medication || response.data.medicationHistory!,
+      data: response.data.data.medicationHistory,
     };
   },
 };
