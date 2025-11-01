@@ -105,4 +105,17 @@ export const medicationService = {
       data: null,
     };
   },
+
+  // Create prescription with billing (deducts from inventory)
+  createWithBilling: async (medicationData: PrescriptionFormData): Promise<ApiResponse<MedicationHistory>> => {
+    const response = await apiClient.post<BackendMedicationResponse>(
+      '/api/medications/billing',
+      medicationData
+    );
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Prescription saved and billed successfully',
+      data: response.data.medication || response.data.medicationHistory!,
+    };
+  },
 };

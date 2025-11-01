@@ -196,36 +196,60 @@ const PrescriptionNew = () => {
     });
   };
 
+  const validateForm = () => {
+    if (!formData.patientId) {
+      setError('Please select a patient');
+      return false;
+    }
+    if (!formData.visitId) {
+      setError('Please select a visit');
+      return false;
+    }
+    if (!formData.consultingDoctor.trim()) {
+      setError('Consulting doctor name is required');
+      return false;
+    }
+    if (formData.medications.some(m => !m.medicineName.trim())) {
+      setError('All medications must have a medicine name');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!formData.patientId) {
-      setError('Please select a patient');
-      return;
-    }
-    if (!formData.visitId) {
-      setError('Please select a visit');
-      return;
-    }
-    if (!formData.consultingDoctor.trim()) {
-      setError('Consulting doctor name is required');
-      return;
-    }
-    if (formData.medications.some(m => !m.medicineName.trim())) {
-      setError('All medications must have a medicine name');
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
       await medicationService.create(formData);
-      alert('Prescription created successfully!');
+      alert('Prescription saved successfully!');
       navigate(`/patients/${formData.patientId}`);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(error.response?.data?.message || 'Failed to create prescription');
       console.error('Create prescription error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBilling = async () => {
+    setError('');
+
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+      await medicationService.createWithBilling(formData);
+      alert('Prescription saved and billed successfully! Inventory updated.');
+      navigate(`/patients/${formData.patientId}`);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to process billing');
+      console.error('Billing error:', err);
     } finally {
       setLoading(false);
     }
@@ -591,7 +615,18 @@ const PrescriptionNew = () => {
               opacity: loading ? 0.6 : 1,
             }}
           >
-            {loading ? 'Creating Prescription...' : 'Create Prescription'}
+            {loading ? 'Saving...' : 'Save Prescription'}
+          </button>
+          <button
+            type="button"
+            onClick={handleBilling}
+            disabled={loading}
+            style={{
+              ...styles.billingButton,
+              opacity: loading ? 0.6 : 1,
+            }}
+          >
+            {loading ? 'Processing...' : 'Save & Bill (Deduct Inventory)'}
           </button>
           <button type="button" onClick={() => navigate(-1)} style={styles.cancelButton}>
             Cancel
@@ -951,6 +986,19 @@ const styles = {
     fontWeight: '600',
     transition: 'all 0.2s ease',
     boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+  },
+  billingButton: {
+    flex: 1,
+    padding: '0.875rem 1.5rem',
+    fontSize: '1rem',
+    backgroundColor: '#059669',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)',
   },
   cancelButton: {
     padding: '0.875rem 1.5rem',
