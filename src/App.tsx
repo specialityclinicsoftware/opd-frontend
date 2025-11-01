@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { UserRole } from './types';
+import { Analytics } from '@vercel/analytics/react';
 
 // Auth
 import Login from './pages/Auth/Login';
@@ -262,6 +263,7 @@ function App() {
           />
         </Routes>
       </Router>
+      <Analytics />
     </AuthProvider>
   );
 }
