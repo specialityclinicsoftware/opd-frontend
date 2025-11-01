@@ -87,15 +87,11 @@ const ConsultationWorkflow = () => {
       return;
     }
 
-    // Enter moves to next field (except for textareas where Enter adds new line)
+    // Enter moves to next field for all inputs
     if (e.key === 'Enter' && !e.shiftKey) {
       const target = e.target as HTMLElement;
 
-      // Allow Enter in textareas for new lines
-      if (target.tagName === 'TEXTAREA') {
-        return;
-      }
-
+      // Prevent default Enter behavior (including new line in textareas)
       e.preventDefault();
 
       // Get all focusable elements (excluding checkboxes and buttons)
