@@ -130,13 +130,8 @@ const PreConsultationWorkflow = () => {
       return;
     }
 
-    // Enter moves to next field for all inputs
-    if (e.key === 'Enter' && !e.shiftKey) {
-      const target = e.target as HTMLElement;
-
-      // Prevent default Enter behavior (including new line in textareas)
-      e.preventDefault();
-
+    // Arrow key navigation (left/right)
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       // Get all focusable elements (excluding checkboxes and buttons)
       const form = e.currentTarget;
       const focusableElements = Array.from(
@@ -145,14 +140,30 @@ const PreConsultationWorkflow = () => {
         )
       );
 
+      const target = e.target as HTMLElement;
       const currentIndex = focusableElements.indexOf(target);
-      const nextElement = focusableElements[currentIndex + 1];
 
-      if (nextElement) {
-        nextElement.focus();
-        // If it's an input or textarea, select the content
-        if (nextElement.tagName === 'INPUT' || nextElement.tagName === 'TEXTAREA') {
-          (nextElement as HTMLInputElement | HTMLTextAreaElement).select();
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const nextElement = focusableElements[currentIndex + 1];
+        if (nextElement) {
+          nextElement.focus();
+          // If it's an input or textarea, select the content
+          if (nextElement.tagName === 'INPUT' || nextElement.tagName === 'TEXTAREA') {
+            (nextElement as HTMLInputElement | HTMLTextAreaElement).select();
+          }
+        }
+      }
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prevElement = focusableElements[currentIndex - 1];
+        if (prevElement) {
+          prevElement.focus();
+          // If it's an input or textarea, select the content
+          if (prevElement.tagName === 'INPUT' || prevElement.tagName === 'TEXTAREA') {
+            (prevElement as HTMLInputElement | HTMLTextAreaElement).select();
+          }
         }
       }
     }
