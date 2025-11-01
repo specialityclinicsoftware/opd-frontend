@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User } from '../types';
+import { UserRole } from '../types';
 import { authService } from '../services';
 
 interface AuthContextType {
@@ -65,11 +66,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const isAuthenticated = !!user;
-  const isDoctor = user?.role === 'doctor';
-  const isNurse = user?.role === 'nurse';
-  const isReceptionist = user?.role === 'receptionist';
-  const isHospitalAdmin = user?.role === 'hospital_admin';
-  const isSuperAdmin = user?.role === 'super_admin';
+  const isDoctor = user?.role === UserRole.DOCTOR;
+  const isNurse = user?.role === UserRole.NURSE;
+  const isReceptionist = user?.role === UserRole.RECEPTIONIST;
+  const isHospitalAdmin = user?.role === UserRole.HOSPITAL_ADMIN;
+  const isSuperAdmin = user?.role === UserRole.SUPER_ADMIN;
 
   return (
     <AuthContext.Provider

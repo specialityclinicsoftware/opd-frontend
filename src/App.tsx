@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import { UserRole } from './types';
 
 // Auth
 import Login from './pages/Auth/Login';
@@ -112,7 +113,7 @@ function App() {
           <Route
             path="/visits/workflow/:id/consultation"
             element={
-              <ProtectedRoute allowedRoles={['doctor']}>
+              <ProtectedRoute allowedRoles={[UserRole.DOCTOR]}>
                 <Layout>
                   <ConsultationWorkflow />
                 </Layout>
@@ -178,7 +179,7 @@ function App() {
           <Route
             path="/admin/hospitals"
             element={
-              <ProtectedRoute allowedRoles={['super_admin']}>
+              <ProtectedRoute allowedRoles={[UserRole.SUPER_ADMIN]}>
                 <Layout>
                   <HospitalList />
                 </Layout>
@@ -188,7 +189,7 @@ function App() {
           <Route
             path="/admin/hospitals/create"
             element={
-              <ProtectedRoute allowedRoles={['super_admin']}>
+              <ProtectedRoute allowedRoles={[UserRole.SUPER_ADMIN]}>
                 <Layout>
                   <CreateHospital />
                 </Layout>
@@ -200,7 +201,7 @@ function App() {
           <Route
             path="/admin/users"
             element={
-              <ProtectedRoute allowedRoles={['super_admin', 'hospital_admin']}>
+              <ProtectedRoute allowedRoles={[UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN]}>
                 <Layout>
                   <UserList />
                 </Layout>
@@ -210,7 +211,7 @@ function App() {
           <Route
             path="/admin/users/create"
             element={
-              <ProtectedRoute allowedRoles={['super_admin', 'hospital_admin']}>
+              <ProtectedRoute allowedRoles={[UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN]}>
                 <Layout>
                   <CreateUser />
                 </Layout>
@@ -220,7 +221,7 @@ function App() {
           <Route
             path="/admin/users/:userId/edit"
             element={
-              <ProtectedRoute allowedRoles={['super_admin', 'hospital_admin']}>
+              <ProtectedRoute allowedRoles={[UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN]}>
                 <Layout>
                   <EditUser />
                 </Layout>
@@ -232,7 +233,7 @@ function App() {
           <Route
             path="/admin/hospitals/:hospitalId/users"
             element={
-              <ProtectedRoute allowedRoles={['super_admin']}>
+              <ProtectedRoute allowedRoles={[UserRole.SUPER_ADMIN]}>
                 <Layout>
                   <UserList />
                 </Layout>
@@ -242,7 +243,7 @@ function App() {
           <Route
             path="/admin/hospitals/:hospitalId/users/create"
             element={
-              <ProtectedRoute allowedRoles={['super_admin']}>
+              <ProtectedRoute allowedRoles={[UserRole.SUPER_ADMIN]}>
                 <Layout>
                   <CreateUser />
                 </Layout>
@@ -252,7 +253,7 @@ function App() {
           <Route
             path="/admin/hospitals/:hospitalId/users/:userId/edit"
             element={
-              <ProtectedRoute allowedRoles={['super_admin']}>
+              <ProtectedRoute allowedRoles={[UserRole.SUPER_ADMIN]}>
                 <Layout>
                   <EditUser />
                 </Layout>

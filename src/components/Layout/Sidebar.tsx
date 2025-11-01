@@ -2,14 +2,15 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Dialog } from '../ui';
 import { useDialog } from '../../hooks/useDialog';
+import { UserRole } from '../../types';
 
 const Sidebar = () => {
   const location = useLocation();
   const { user, isDoctor, isNurse, logout } = useAuth();
   const { dialogState, hideDialog, confirm } = useDialog();
 
-  const isSuperAdmin = user?.role === 'super_admin';
-  const isHospitalAdmin = user?.role === 'hospital_admin';
+  const isSuperAdmin = user?.role === UserRole.SUPER_ADMIN;
+  const isHospitalAdmin = user?.role === UserRole.HOSPITAL_ADMIN;
 
   const menuItems = [
     {

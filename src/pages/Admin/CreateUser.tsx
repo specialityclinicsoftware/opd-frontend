@@ -7,6 +7,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Alert from '../../components/ui/Alert';
 import type { AxiosError } from '../../types/api';
+import { UserRole } from '../../types';
 
 const CreateUser: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const CreateUser: React.FC = () => {
     name: '',
     email: '',
     password: '',
-    role: 'doctor',
+    role: UserRole.DOCTOR,
     phoneNumber: '',
     specialization: '',
     licenseNumber: '',
@@ -67,7 +68,7 @@ const CreateUser: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const showDoctorFields = formData.role === 'doctor';
+  const showDoctorFields = formData.role === UserRole.DOCTOR;
 
   return (
     <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
@@ -176,8 +177,8 @@ const CreateUser: React.FC = () => {
                   <option value="doctor">Doctor</option>
                   <option value="nurse">Nurse</option>
                   <option value="receptionist">Receptionist</option>
-                  {currentUser?.role === 'super_admin' && (
-                    <option value="hospital_admin">Hospital Admin</option>
+                  {currentUser?.role === UserRole.SUPER_ADMIN && (
+                    <option value={UserRole.HOSPITAL_ADMIN}>Hospital Admin</option>
                   )}
                 </select>
               </div>
